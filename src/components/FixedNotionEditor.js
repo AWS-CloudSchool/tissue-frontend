@@ -59,6 +59,12 @@ const FixedNotionEditor = () => {
       updateBlockType(blockId, 'code', '');
       return true;
     }
+    
+    // YouTube 링크 감지
+    if (text.startsWith('https://www.youtube.com/watch') || text.startsWith('https://youtu.be/')) {
+      updateBlockType(blockId, 'youtube', text);
+      return true;
+    }
 
     return false;
   }, []);
@@ -151,17 +157,17 @@ const FixedNotionEditor = () => {
     if (isComposing.current) return;
     
     const element = e.target;
-    const newContent = element.textContent || '';
+    const textContent = element.textContent || '';
+    const htmlContent = element.innerHTML || '';
     
-    if (detectMarkdownAndConvert(newContent, blockId)) {
+    if (detectMarkdownAndConvert(textContent, blockId)) {
       return;
     }
     
-    // 상태 업데이트하지 않고 DOM만 동기화
-    // React 리렌더링을 피해서 커서 위치 보존
+    // HTML 내용으로 상태 업데이트 (스타일 유지)
     const currentBlock = blocks.find(b => b.id === blockId);
-    if (currentBlock && currentBlock.content !== newContent) {
-      updateBlockContent(blockId, newContent);
+    if (currentBlock && currentBlock.content !== htmlContent) {
+      updateBlockContent(blockId, htmlContent);
     }
   }, [detectMarkdownAndConvert, updateBlockContent, blocks]);
 
@@ -203,10 +209,47 @@ const FixedNotionEditor = () => {
     selection.removeAllRanges();
     selection.addRange(selectionInfo.range);
 
-    document.execCommand(command, false, null);
+    if (command === 'bold') {
+      // execCommand의 기본 토글 기능 사용
+      document.execCommand('bold', false, null);
+    } else if (command === 'italic') {
+      // execCommand의 기본 토글 기능 사용
+      document.execCommand('italic', false, null);
+    } else if (command === 'underline') {
+      document.execCommand('underline', false, null);
+    } else if (command === 'highlight') {
+      // 하이라이트는 수동으로 토글 구현
+      const selectedText = selectionInfo.range.toString();
+      const parentElement = selectionInfo.range.commonAncestorContainer.nodeType === Node.TEXT_NODE 
+        ? selectionInfo.range.commonAncestorContainer.parentElement 
+        : selectionInfo.range.commonAncestorContainer;
+      
+      const markParent = parentElement.closest('mark');
+      if (markParent && markParent.textContent.trim() === selectedText.trim()) {
+        // 스타일 제거: mark 태그의 내용으로 교체
+        const textNode = document.createTextNode(selectedText);
+        markParent.parentNode.replaceChild(textNode, markParent);
+      } else {
+        // 스타일 적용
+        const styledText = `<mark style="background-color: #ffeb3b; color: #000;">${selectedText}</mark>`;
+        document.execCommand('insertHTML', false, styledText);
+      }
+    }
+    
+    // 블록 내용 업데이트
+    const blockId = selectionInfo.blockId;
+    if (blockId) {
+      setTimeout(() => {
+        const element = editorRefs.current[blockId];
+        if (element) {
+          const newContent = element.innerHTML;
+          updateBlockContent(blockId, newContent);
+        }
+      }, 10);
+    }
     
     setShowToolbar(false);
-  }, [selectionInfo]);
+  }, [selectionInfo, updateBlockContent]);
 
   const toggleCheckbox = useCallback((blockId) => {
     setBlocks(prevBlocks =>
@@ -217,6 +260,75 @@ const FixedNotionEditor = () => {
       )
     );
   }, []);
+
+  const parseInlineMarkdown = useCallback((text) => {
+    // **볼드** 처리
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // ==하이라이트== 처리 (노랑색 형광펜)
+    text = text.replace(/==(.*?)==/g, '<mark style="background-color: #ffeb3b; color: #000;">$1</mark>');
+    
+    return text;
+  }, []);
+
+  const parseMarkdownToBlocks = useCallback((text) => {
+    const lines = text.split('\n');
+    const blocks = [];
+    let blockId = 1;
+
+    lines.forEach(line => {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) return;
+
+      let content = '';
+      let type = 'paragraph';
+
+      // 제목 파싱
+      if (trimmedLine.startsWith('### ')) {
+        type = 'heading3';
+        content = parseInlineMarkdown(trimmedLine.substring(4));
+      } else if (trimmedLine.startsWith('## ')) {
+        type = 'heading2';
+        content = parseInlineMarkdown(trimmedLine.substring(3));
+      } else if (trimmedLine.startsWith('# ')) {
+        type = 'heading1';
+        content = parseInlineMarkdown(trimmedLine.substring(2));
+      }
+      // 불릿 포인트 파싱
+      else if (trimmedLine.startsWith('- ')) {
+        type = 'bullet';
+        content = parseInlineMarkdown(trimmedLine.substring(2));
+      }
+      // 번호 목록 파싱
+      else if (/^\d+\.\s/.test(trimmedLine)) {
+        type = 'numbered';
+        content = parseInlineMarkdown(trimmedLine.replace(/^\d+\.\s/, ''));
+      }
+      // 인용구 파싱
+      else if (trimmedLine.startsWith('> ')) {
+        type = 'quote';
+        content = parseInlineMarkdown(trimmedLine.substring(2));
+      }
+      // YouTube 링크 파싱
+      else if (trimmedLine.startsWith('https://www.youtube.com/watch') || trimmedLine.startsWith('https://youtu.be/')) {
+        type = 'youtube';
+        content = trimmedLine; // 링크 그대로 저장
+      }
+      // 일반 텍스트
+      else {
+        content = parseInlineMarkdown(trimmedLine);
+      }
+
+      blocks.push({
+        id: `block_${blockId++}`,
+        type: type,
+        content: content,
+        placeholder: ''
+      });
+    });
+
+    return blocks;
+  }, [parseInlineMarkdown]);
 
   const convertAnalysisToBlocks = useCallback((analysisData) => {
     const blocks = [];
@@ -234,8 +346,8 @@ const FixedNotionEditor = () => {
     if (analysisData.youtube_url) {
       blocks.push({
         id: `block_${blockId++}`,
-        type: 'paragraph',
-        content: `🔗 원본 영상: ${analysisData.youtube_url}`,
+        type: 'youtube',
+        content: analysisData.youtube_url,
         placeholder: ''
       });
     }
@@ -248,20 +360,19 @@ const FixedNotionEditor = () => {
       placeholder: ''
     });
 
-    // 분석 결과의 각 섹션을 블록으로 변환
+    // 분석 결과의 각 섹션을 마크다운으로 파싱
     if (analysisData.final_output?.sections) {
       analysisData.final_output.sections.forEach(section => {
-        blocks.push({
-          id: `block_${blockId++}`,
-          type: 'paragraph',
-          content: section.content,
-          placeholder: ''
-        });
+        const parsedBlocks = parseMarkdownToBlocks(section.content);
+        blocks.push(...parsedBlocks.map(block => ({
+          ...block,
+          id: `block_${blockId++}`
+        })));
       });
     }
 
     return blocks;
-  }, []);
+  }, [parseMarkdownToBlocks]);
 
 
 
@@ -291,11 +402,11 @@ const FixedNotionEditor = () => {
       width: '100%',
       backgroundColor: 'transparent',
       fontFamily: 'inherit',
-      padding: '8px 12px',
-      margin: '2px 0',
+      padding: '4px 8px',
+      margin: '1px 0',
       borderRadius: '8px',
       transition: 'all 0.2s ease-in-out',
-      minHeight: '1.5em',
+      minHeight: '1.2em',
       wordWrap: 'break-word',
       whiteSpace: 'pre-wrap'
     };
@@ -307,9 +418,9 @@ const FixedNotionEditor = () => {
         <div
           ref={el => {
             editorRefs.current[block.id] = el;
-            // 초기 콘텐츠 설정 (한 번만)
-            if (el && el.textContent !== block.content && !isComposing.current) {
-              el.textContent = block.content;
+            // 초기 콘텐츠 설정 (HTML 포함)
+            if (el && el.innerHTML !== block.content && !isComposing.current) {
+              el.innerHTML = block.content;
             }
           }}
           contentEditable
@@ -328,11 +439,7 @@ const FixedNotionEditor = () => {
           onCompositionEnd={(e) => {
             isComposing.current = false;
             const element = e.target;
-            const newContent = element.textContent || '';
-            
-            if (detectMarkdownAndConvert(newContent, block.id)) {
-              return;
-            }
+            const newContent = element.innerHTML || '';
             
             updateBlockContent(block.id, newContent);
           }}
@@ -346,8 +453,8 @@ const FixedNotionEditor = () => {
             e.target.style.backgroundColor = 'transparent';
             e.target.style.boxShadow = 'none';
             
-            // 블러 시에만 상태 동기화
-            const content = e.target.textContent || '';
+            // 블러 시에만 상태 동기화 (HTML 내용 유지)
+            const content = e.target.innerHTML || '';
             if (content !== block.content) {
               updateBlockContent(block.id, content);
             }
@@ -364,7 +471,7 @@ const FixedNotionEditor = () => {
     switch (block.type) {
       case 'heading1':
         return (
-          <div style={{ margin: '20px 0 12px 0' }}>
+          <div style={{ margin: '12px 0 8px 0' }}>
             {createEditor({
               fontSize: '2.25em',
               fontWeight: '800',
@@ -377,7 +484,7 @@ const FixedNotionEditor = () => {
 
       case 'heading2':
         return (
-          <div style={{ margin: '18px 0 10px 0' }}>
+          <div style={{ margin: '10px 0 6px 0' }}>
             {createEditor({
               fontSize: '1.75em',
               fontWeight: '700',
@@ -510,6 +617,31 @@ const FixedNotionEditor = () => {
           </div>
         );
 
+      case 'youtube':
+        const videoId = block.content.includes('watch?v=')
+          ? block.content.split('watch?v=')[1].split('&')[0]
+          : block.content.split('/').pop();
+        return (
+          <div style={{ margin: '16px 0' }}>
+            <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden' }}>
+              <iframe
+                src={`https://www.youtube.com/embed/${videoId}`}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title="YouTube video"
+                style={{
+                  position: 'absolute',
+                  top: 0, left: 0,
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '12px'
+                }}
+              />
+            </div>
+          </div>
+        );
+
       default:
         return (
           <div style={{ margin: '6px 0' }}>
@@ -574,7 +706,7 @@ const FixedNotionEditor = () => {
             }}
             onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(102, 126, 234, 0.2)'}
             onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
-            title="굵게"
+            title="굵게 (**텍스트**)"
           >
             <strong>B</strong>
           </button>
@@ -594,7 +726,7 @@ const FixedNotionEditor = () => {
             }}
             onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(102, 126, 234, 0.2)'}
             onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
-            title="기울임"
+            title="기울임 (*텍스트*)"
           >
             I
           </button>
@@ -617,6 +749,26 @@ const FixedNotionEditor = () => {
             title="밑줄"
           >
             U
+          </button>
+          
+          <button
+            onClick={() => applyStyleToSelection('highlight')}
+            style={{
+              padding: '8px 10px',
+              background: '#ffeb3b',
+              border: 'none',
+              borderRadius: '6px',
+              color: '#000',
+              cursor: 'pointer',
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              transition: 'all 0.15s ease'
+            }}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#fff176'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#ffeb3b'}
+            title="하이라이트 (==텍스트==)"
+          >
+            H
           </button>
         </div>
       )}
@@ -747,7 +899,7 @@ const FixedNotionEditor = () => {
             <div 
               key={block.id} 
               style={{ 
-                marginBottom: '8px',
+                marginBottom: '4px',
                 position: 'relative',
                 transition: 'all 0.2s ease-in-out'
               }}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
 import { colors } from '../styles/colors';
-import { FaPlay, FaEye, FaCalendarAlt, FaFileAlt } from "react-icons/fa";
+import { FaPlay, FaEye, FaCalendarAlt, FaFileAlt, FaClock } from "react-icons/fa";
 import { useLocation, useNavigate } from 'react-router-dom';
 import TopBar from './TopBar';
 import Footer from './Footer';
@@ -99,33 +99,59 @@ const VideoList = styled.div`
 
 const VideoRow = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: space-between;
   background: rgba(255,255,255,0.1);
-  border-radius: 14px;
-  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.2);
-  padding: 12px 18px;
-  gap: 18px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px 0 rgba(0,0,0,0.15);
+  padding: 20px;
+  gap: 20px;
   backdrop-filter: blur(12px);
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition: all 0.3s ease;
   &:hover {
-    box-shadow: 0 4px 24px 0 rgba(0,0,0,0.3);
-    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 8px 32px 0 rgba(0,0,0,0.25);
+    transform: translateY(-4px);
+    background: rgba(255,255,255,0.15);
   }
+`;
+
+const VideoContent = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  flex: 1;
 `;
 
 const ThumbnailWrapper = styled.a`
   position: relative;
-  width: 120px;
-  min-width: 120px;
-  height: 68px;
+  width: 200px;
+  min-width: 200px;
+  height: 112px;
   display: block;
+  border-radius: 12px;
+  overflow: hidden;
 `;
 
 const Thumbnail = styled.img`
   width: 100%;
   height: 100%;
-  border-radius: 8px;
   object-fit: cover;
+  transition: transform 0.3s ease;
+  &:hover {
+    transform: scale(1.05);
+  }
+`;
+
+const Duration = styled.div`
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
 `;
 
 const PlayIcon = styled(FaPlay)`
@@ -171,39 +197,46 @@ const SummaryButton = styled.button`
 `;
 
 const Title = styled.a`
-  font-weight: bold;
+  font-weight: 700;
   color: ${colors.white};
-  font-size: 1.08rem;
+  font-size: 1.2rem;
   text-decoration: none;
-  margin-bottom: 2px;
+  margin-bottom: 8px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-shadow: 0 0 8px rgba(0,0,0,0.5);
+  line-height: 1.4;
   &:hover {
     text-decoration: underline;
+    color: #eaffb7;
   }
 `;
 
 const Channel = styled.div`
-  font-size: 13px;
+  font-size: 0.9rem;
   color: ${colors.white};
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  opacity: 0.8;
+  font-weight: 500;
+  margin-bottom: 8px;
+  opacity: 0.9;
 `;
 
 const Meta = styled.div`
-  font-size: 12px;
+  font-size: 0.85rem;
   color: ${colors.white};
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 16px;
   align-items: center;
-  margin-top: 2px;
-  opacity: 0.7;
+  margin-bottom: 12px;
+  opacity: 0.8;
+`;
+
+const MetaItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
 `;
 
 const ErrorMsg = styled.div`
@@ -211,14 +244,40 @@ const ErrorMsg = styled.div`
   margin-top: 20px;
 `;
 
-function formatDuration(seconds) {
-  if (!seconds || isNaN(seconds)) return '';
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  return h > 0
-    ? `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
-    : `${m}:${s.toString().padStart(2, '0')}`;
+function formatDuration(duration) {
+  if (!duration || duration === "0" || duration === 0) return null;
+  
+  // 문자열 숫자를 숫자로 변환
+  const durationNum = typeof duration === 'string' ? parseInt(duration) : duration;
+  
+  if (isNaN(durationNum) || durationNum <= 0) return null;
+  
+  // ISO 8601 duration format (PT4M13S) 파싱
+  if (typeof duration === 'string' && duration.startsWith('PT')) {
+    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (match) {
+      const hours = parseInt(match[1]) || 0;
+      const minutes = parseInt(match[2]) || 0;
+      const seconds = parseInt(match[3]) || 0;
+      
+      if (hours > 0) {
+        return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      } else {
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      }
+    }
+  }
+  
+  // 숫자인 경우 (초 단위)
+  const h = Math.floor(durationNum / 3600);
+  const m = Math.floor((durationNum % 3600) / 60);
+  const s = durationNum % 60;
+  
+  if (h > 0) {
+    return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  } else {
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  }
 }
 
 function timeAgo(dateString) {
@@ -317,29 +376,42 @@ const YoutubeSearchPage = () => {
       <VideoList>
         {videos.map(video => (
           <VideoRow key={video.video_id}>
-            <ThumbnailWrapper href={`https://www.youtube.com/watch?v=${video.video_id}`} target="_blank" rel="noopener noreferrer">
-              <Thumbnail src={video.thumbnail_url} alt={video.title} />
-              <PlayIcon />
-            </ThumbnailWrapper>
-            <Info>
-              <Title href={`https://www.youtube.com/watch?v=${video.video_id}`} target="_blank" rel="noopener noreferrer">
-                {video.title}
-              </Title>
-              <Channel>{video.channel_title}</Channel>
-              <Meta>
-                <FaEye style={{ marginRight: 2 }} />
-                {video.view_count?.toLocaleString?.() ?? video.view_count}
-                <FaCalendarAlt style={{ marginLeft: 8, marginRight: 2 }} />
-                {new Date(video.published_at).toLocaleDateString()}
-              </Meta>
-              <SummaryButton 
-                onClick={() => handleSummaryRequest(video.video_id)}
-                disabled={summaryLoading[video.video_id]}
-              >
-                <FaFileAlt />
-                {summaryLoading[video.video_id] ? '요약 중...' : '요약 요청'}
-              </SummaryButton>
-            </Info>
+            <VideoContent>
+              <ThumbnailWrapper href={`https://www.youtube.com/watch?v=${video.video_id}`} target="_blank" rel="noopener noreferrer">
+                <Thumbnail src={video.thumbnail_url} alt={video.title} />
+                <PlayIcon />
+                {formatDuration(video.duration) && <Duration>{formatDuration(video.duration)}</Duration>}
+              </ThumbnailWrapper>
+              <Info>
+                <Title href={`https://www.youtube.com/watch?v=${video.video_id}`} target="_blank" rel="noopener noreferrer">
+                  {video.title}
+                </Title>
+                <Channel>{video.channel_title}</Channel>
+                <Meta>
+                  <MetaItem>
+                    <FaEye />
+                    {video.view_count?.toLocaleString?.() ?? video.view_count}
+                  </MetaItem>
+                  <MetaItem>
+                    <FaCalendarAlt />
+                    {new Date(video.published_at).toLocaleDateString()}
+                  </MetaItem>
+                  {formatDuration(video.duration) && (
+                    <MetaItem>
+                      <FaClock />
+                      {formatDuration(video.duration)}
+                    </MetaItem>
+                  )}
+                </Meta>
+              </Info>
+            </VideoContent>
+            <SummaryButton 
+              onClick={() => handleSummaryRequest(video.video_id)}
+              disabled={summaryLoading[video.video_id]}
+            >
+              <FaFileAlt />
+              {summaryLoading[video.video_id] ? '요약 중...' : '요약 요청'}
+            </SummaryButton>
           </VideoRow>
         ))}
       </VideoList>
