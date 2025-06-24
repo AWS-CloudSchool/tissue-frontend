@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import LoginModal from './LoginModal';
 import SignupModal from './SignupModal';
@@ -51,35 +51,79 @@ const NavMenu = styled.button`
 `;
 
 const LoginButton = styled.button`
-  background: linear-gradient(90deg, #eaffb7 60%, #b7eaff 100%);
-  color: #333;
+  background: #111;
+  color: ${colors.white};
   font-weight: 600;
   border: none;
   border-radius: 18px;
   padding: 8px 22px;
   font-size: 1.05rem;
-  box-shadow: 0 0 8px #eaffb7aa;
+  box-shadow: 0 0 8px #222;
   cursor: pointer;
   transition: background 0.18s, color 0.18s;
   &:hover {
-    background: linear-gradient(90deg, #f7ffde 60%, #eaffb7 100%);
-    color: #7e7e00;
+    background: #222;
+    color: ${colors.white};
   }
 `;
 
 const TopBar = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // 로그인 상태 확인
+    const token = localStorage.getItem('access_token');
+    const idToken = localStorage.getItem('id_token');
+    if (token && idToken) {
+      try {
+        const { jwtDecode } = require('jwt-decode');
+        const decoded = jwtDecode(idToken);
+        setUser({
+          username: decoded['cognito:username'] || decoded.email,
+          email: decoded.email
+        });
+      } catch (error) {
+        console.error('토큰 디코딩 실패:', error);
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('id_token');
+      }
+    }
+  }, []);
+
+  const handleLoginSuccess = (loginData) => {
+    setUser(loginData.user);
+    setShowLogin(false);
+    navigate('/dashboard');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('id_token');
+    setUser(null);
+    navigate('/');
+  };
 
   return (
     <>
       <TopBarContainer>
         <LeftSection>
           <Logo onClick={() => navigate('/')}>aurora report</Logo>
+          <NavMenu onClick={() => navigate('/dashboard')}>대시보드</NavMenu>
           <NavMenu onClick={() => navigate('/editor')}>에디터</NavMenu>
         </LeftSection>
-        <LoginButton onClick={() => setShowLogin(true)}>Login</LoginButton>
+        {user ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ color: colors.white, fontSize: '0.9rem' }}>
+              {user.email}님
+            </span>
+            <LoginButton onClick={handleLogout}>Logout</LoginButton>
+          </div>
+        ) : (
+          <LoginButton onClick={() => setShowLogin(true)}>Login</LoginButton>
+        )}
       </TopBarContainer>
       {showLogin && (
         <LoginModal 
@@ -88,6 +132,7 @@ const TopBar = () => {
             setShowLogin(false);
             setShowSignup(true);
           }}
+          onLoginSuccess={handleLoginSuccess}
         />
       )}
       {showSignup && (

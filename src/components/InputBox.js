@@ -18,10 +18,10 @@ const Box = styled.div`
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
-  background: rgba(255,255,255,0.18);
-  border: 2px solid #eaffb7;
+  background: ${colors.bgLight};
+  border: 2px solid ${colors.primary};
   border-radius: 18px;
-  box-shadow: 0 2px 16px 0 rgba(180,255,255,0.08);
+  box-shadow: 0 2px 16px 0 ${colors.navyDark}44;
   display: flex;
   align-items: center;
   padding: 10px 16px;
@@ -36,17 +36,17 @@ const Input = styled.input`
   border: none;
   background: transparent;
   font-size: 1.13rem;
-  color: #222;
+  color: ${colors.text};
   outline: none;
   padding: 4px 0;
   &::placeholder {
-    color: #b6b6b6;
+    color: ${colors.gray};
     font-size: 1rem;
   }
 `;
 
 const ArrowButton = styled.button`
-  background: #eaffb7;
+  background: #111;
   border: none;
   border-radius: 50%;
   width: 32px;
@@ -55,13 +55,13 @@ const ArrowButton = styled.button`
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
-  color: #7e7e00;
-  box-shadow: 0 0 8px #eaffb7aa;
+  color: ${colors.white};
+  box-shadow: 0 0 8px #222;
   cursor: pointer;
   transition: background 0.2s;
   margin-left: 6px;
   &:hover {
-    background: #f7ffde;
+    background: #222;
   }
 `;
 
@@ -139,8 +139,7 @@ const InputBox = () => {
         const analysisData = response.data.analysis_results.fsm_analysis;
         navigate('/editor', { 
           state: { 
-            analysisData: analysisData,
-            youtubeUrl: input 
+            analysisData: analysisData
           } 
         });
       }

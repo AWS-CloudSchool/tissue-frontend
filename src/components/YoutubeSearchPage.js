@@ -57,34 +57,35 @@ const SearchBar = styled.div`
 const Input = styled.input`
   flex: 1;
   border: none;
-  background: rgba(255,255,255,0.18);
-  border: 2px solid #eaffb7;
+  background: ${colors.bgLight};
+  border: 2px solid ${colors.primary};
   border-radius: 18px;
-  box-shadow: 0 2px 16px 0 rgba(180,255,255,0.08);
+  box-shadow: 0 2px 16px 0 ${colors.navyDark}44;
   padding: 10px 16px;
   font-size: 1.13rem;
-  color: #222;
+  color: ${colors.text};
   outline: none;
   backdrop-filter: blur(2px);
   &::placeholder {
-    color: #b6b6b6;
+    color: ${colors.gray};
     font-size: 1rem;
   }
 `;
 
 const Button = styled.button`
-  background: #eaffb7;
+  background: ${colors.gradientMain};
   border: none;
   border-radius: 18px;
   padding: 0 22px;
   font-size: 1.05rem;
-  color: #7e7e00;
-  box-shadow: 0 0 8px #eaffb7aa;
+  color: ${colors.white};
+  box-shadow: 0 0 8px #7e5cff88;
   cursor: pointer;
   font-weight: 600;
   transition: background 0.2s;
   &:hover {
-    background: #f7ffde;
+    background: ${colors.gradientPoint};
+    color: ${colors.primary};
   }
 `;
 
@@ -341,8 +342,7 @@ const YoutubeSearchPage = () => {
         const analysisData = response.data.analysis_results.fsm_analysis;
         navigate('/editor', { 
           state: { 
-            analysisData: analysisData,
-            youtubeUrl: youtubeUrl 
+            analysisData: analysisData
           } 
         });
       }

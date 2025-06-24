@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
+import { colors } from '../styles/colors';
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
 const Overlay = styled.div`
   position: fixed;
@@ -63,11 +67,12 @@ const InputGroup = styled.div`
 const Input = styled.input`
   width: 100%;
   padding: 8px 10px;
-  border: 1.2px solid #eaffb7;
+  border: 1.2px solid ${colors.primary};
   border-radius: 6px;
   font-size: 0.98rem;
   outline: none;
-  background: #fff;
+  background: ${colors.navyDark};
+  color: ${colors.white};
   margin-bottom: 0;
 `;
 
@@ -77,10 +82,10 @@ const PasswordToggle = styled.button`
   right: 12px;
   transform: translateY(-50%);
   font-size: 0.85rem;
-  color: #888;
+  color: ${colors.gray};
   cursor: pointer;
   user-select: none;
-  background: #fff;
+  background: #111;
   padding: 0 4px;
   border: none;
 `;
@@ -109,8 +114,8 @@ const Warning = styled.div`
 const SignupButton = styled.button`
   width: 65%;
   padding: 10px 0;
-  background: #eaffb7;
-  color: #333;
+  background: #111;
+  color: ${colors.white};
   font-weight: bold;
   border: none;
   border-radius: 6px;
@@ -119,12 +124,12 @@ const SignupButton = styled.button`
   cursor: pointer;
   transition: background 0.18s;
   &:hover {
-    background: #b7eaff;
-    color: #333;
+    background: #222;
+    color: ${colors.white};
   }
   &:disabled {
-    background: #aaa;
-    color: #fff;
+    background: #444;
+    color: ${colors.gray};
     cursor: not-allowed;
   }
 `;
@@ -156,6 +161,10 @@ const SignupModal = ({ onClose, onLoginClick }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmCode, setConfirmCode] = useState('');
+  const [confirmError, setConfirmError] = useState('');
+  const [confirmSuccess, setConfirmSuccess] = useState(false);
 
   const validatePassword = (password) => {
     return {
@@ -185,66 +194,131 @@ const SignupModal = ({ onClose, onLoginClick }) => {
       return;
     }
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/auth/signup`, {
+        email,
+        password,
+        password_confirm: confirmPassword
+      });
+      setShowConfirm(true);
+    } catch (e) {
+      const msg =
+        e?.response?.data?.detail ||
+        e?.response?.data?.message ||
+        e?.message ||
+        '알 수 없는 오류가 발생했습니다.';
+      setError('회원가입 실패: ' + msg);
+    } finally {
       setIsLoading(false);
-      onClose && onClose();
-    }, 1200); // 실제 API 연동 시 이 부분을 수정
+    }
+  };
+
+  const handleConfirm = async (e) => {
+    e.preventDefault();
+    setConfirmError('');
+    setIsLoading(true);
+    try {
+      const response = await axios.post(`${API_BASE_URL}/auth/confirm`, {
+        email,
+        code: confirmCode
+      });
+      setConfirmSuccess(true);
+    } catch (e) {
+      const msg =
+        e?.response?.data?.detail ||
+        e?.response?.data?.message ||
+        e?.message ||
+        '알 수 없는 오류가 발생했습니다.';
+      setConfirmError('인증 실패: ' + msg);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Overlay>
       <ModalBox>
         <CloseBtn onClick={onClose}>×</CloseBtn>
-        <Title>회원가입</Title>
-        <Form onSubmit={handleSignup}>
-          <InputGroup>
-            <Input
-              type="email"
-              placeholder="이메일"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-            />
-          </InputGroup>
-          <InputGroup>
-            <Input
-              type={showPassword ? 'text' : 'password'}
-              placeholder="비밀번호"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-            />
-            <PasswordToggle type="button" onClick={() => setShowPassword(v => !v)}>
-              {showPassword ? '숨기기' : '보기'}
-            </PasswordToggle>
-          </InputGroup>
-          <InputGroup>
-            <Input
-              type={showConfirmPassword ? 'text' : 'password'}
-              placeholder="비밀번호 확인"
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              required
-            />
-            <PasswordToggle type="button" onClick={() => setShowConfirmPassword(v => !v)}>
-              {showConfirmPassword ? '숨기기' : '보기'}
-            </PasswordToggle>
-          </InputGroup>
-          <PasswordRequirements>
-            <PasswordRequirement met={passwordValidation.isLongEnough}>• 8자 이상</PasswordRequirement>
-            <PasswordRequirement met={passwordValidation.hasUpperCase}>• 대문자 1개 이상</PasswordRequirement>
-            <PasswordRequirement met={passwordValidation.hasLowerCase}>• 소문자 1개 이상</PasswordRequirement>
-            <PasswordRequirement met={passwordValidation.hasNumber}>• 숫자 1개 이상</PasswordRequirement>
-            <PasswordRequirement met={passwordValidation.hasSpecialChar}>• 특수문자 1개 이상</PasswordRequirement>
-          </PasswordRequirements>
-          {error && <Warning>{error}</Warning>}
-          <SignupButton type="submit" disabled={isLoading}>
-            {isLoading ? '처리중...' : '회원가입'}
-          </SignupButton>
-        </Form>
-        <LoginLink>
-          이미 계정이 있으신가요? <span onClick={onLoginClick}>로그인</span>
-        </LoginLink>
+        {!showConfirm ? (
+          <>
+            <Title>회원가입</Title>
+            <Form onSubmit={handleSignup}>
+              <InputGroup>
+                <Input
+                  type="email"
+                  placeholder="이메일"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
+                />
+              </InputGroup>
+              <InputGroup>
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="비밀번호"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                />
+                <PasswordToggle type="button" onClick={() => setShowPassword(v => !v)}>
+                  {showPassword ? '숨김' : '표시'}
+                </PasswordToggle>
+              </InputGroup>
+              <InputGroup>
+                <Input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="비밀번호 확인"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  required
+                />
+                <PasswordToggle type="button" onClick={() => setShowConfirmPassword(v => !v)}>
+                  {showConfirmPassword ? '숨김' : '표시'}
+                </PasswordToggle>
+              </InputGroup>
+              <PasswordRequirements>
+                <PasswordRequirement met={passwordValidation.isLongEnough}>8자 이상</PasswordRequirement>
+                <PasswordRequirement met={passwordValidation.hasUpperCase}>대문자 포함</PasswordRequirement>
+                <PasswordRequirement met={passwordValidation.hasLowerCase}>소문자 포함</PasswordRequirement>
+                <PasswordRequirement met={passwordValidation.hasNumber}>숫자 포함</PasswordRequirement>
+                <PasswordRequirement met={passwordValidation.hasSpecialChar}>특수문자 포함</PasswordRequirement>
+              </PasswordRequirements>
+              {error && <Warning>{error}</Warning>}
+              <SignupButton type="submit" disabled={isLoading}>회원가입</SignupButton>
+            </Form>
+            <LoginLink>
+              이미 계정이 있으신가요?
+              <span onClick={onLoginClick}>로그인</span>
+            </LoginLink>
+          </>
+        ) : !confirmSuccess ? (
+          <>
+            <Title>이메일 인증</Title>
+            <div style={{ color: '#fff', marginBottom: 12 }}>
+              입력하신 이메일로 인증코드가 발송되었습니다.<br />
+              이메일로 받은 인증코드를 입력해주세요.
+            </div>
+            <Form onSubmit={handleConfirm}>
+              <InputGroup>
+                <Input
+                  type="text"
+                  placeholder="인증코드"
+                  value={confirmCode}
+                  onChange={e => setConfirmCode(e.target.value)}
+                  required
+                />
+              </InputGroup>
+              {confirmError && <Warning>{confirmError}</Warning>}
+              <SignupButton type="submit" disabled={isLoading}>인증하기</SignupButton>
+            </Form>
+          </>
+        ) : (
+          <>
+            <Title>이메일 인증 완료</Title>
+            <div style={{ color: '#6b7cff', marginBottom: 16 }}>이메일 인증이 완료되었습니다!<br />이제 로그인하실 수 있습니다.</div>
+            <SignupButton type="button" onClick={onLoginClick}>로그인하러 가기</SignupButton>
+          </>
+        )}
       </ModalBox>
     </Overlay>
   );

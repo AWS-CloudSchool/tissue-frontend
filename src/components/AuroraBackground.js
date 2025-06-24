@@ -31,12 +31,7 @@ const Aurora = styled.div`
   height: 200%;
   top: -50%;
   left: -50%;
-  background: linear-gradient(
-    45deg,
-    rgba(255, 0, 128, 0.3),
-    rgba(0, 255, 255, 0.3),
-    rgba(255, 0, 128, 0.3)
-  );
+  background: #000;
   animation: ${auroraAnimation} 20s infinite linear;
   filter: blur(60px);
 `;
@@ -48,7 +43,7 @@ const AuroraBg = styled.div`
   width: 100vw;
   height: 100vh;
   z-index: -1;
-  background: ${colors.bgLight};
+  background: #000;
 `;
 
 const AuroraBackground = () => {

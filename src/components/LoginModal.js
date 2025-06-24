@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import { colors } from '../styles/colors';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -53,11 +54,12 @@ const Title = styled.h2`
 const Input = styled.input`
   width: 100%;
   padding: 8px 10px;
-  border: 1.2px solid #eaffb7;
+  border: 1.2px solid ${colors.primary};
   border-radius: 6px;
   font-size: 0.98rem;
   outline: none;
-  background: #fff;
+  background: ${colors.navyDark};
+  color: ${colors.white};
   margin-bottom: 0;
 `;
 
@@ -83,8 +85,8 @@ const ShowBtn = styled.span`
 const LoginBtn = styled.button`
   width: 65%;
   padding: 10px 0;
-  background: #eaffb7;
-  color: #333;
+  background: #111;
+  color: ${colors.white};
   font-weight: bold;
   border: none;
   border-radius: 6px;
@@ -93,8 +95,8 @@ const LoginBtn = styled.button`
   cursor: pointer;
   transition: background 0.18s;
   &:hover {
-    background: #b7eaff;
-    color: #333;
+    background: #222;
+    color: ${colors.white};
   }
 `;
 
@@ -118,9 +120,9 @@ const SnsBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1.2px solid #eaffb7;
-  background: #fff;
-  color: #333;
+  border: 1.2px solid #222;
+  background: #111;
+  color: ${colors.white};
   border-radius: 6px;
   font-size: 0.98rem;
   font-weight: 500;
@@ -129,7 +131,8 @@ const SnsBtn = styled.button`
   cursor: pointer;
   transition: background 0.15s;
   &:hover {
-    background: #f7ffde;
+    background: #222;
+    color: ${colors.white};
   }
   img {
     width: 18px;
@@ -147,7 +150,7 @@ const SignupBox = styled.div`
 `;
 
 const SignupBtn = styled.button`
-  color: #6b7cff;
+  color: ${colors.white};
   background: none;
   border: none;
   font-size: 0.92rem;
@@ -156,6 +159,7 @@ const SignupBtn = styled.button`
   cursor: pointer;
   &:hover {
     text-decoration: underline;
+    color: #aaa;
   }
 `;
 

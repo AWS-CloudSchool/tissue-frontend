@@ -44,38 +44,6 @@ const SubText = styled.p`
   display: block;
 `;
 
-const BottomArea = styled.div`
-  position: static;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  z-index: 2;
-`;
-
-const FooterContainer = styled.footer`
-  width: 100%;
-  padding: 16px 0;
-  text-align: center;
-  color: ${colors.gray};
-  background: ${colors.bgLight};
-  z-index: 10;
-  margin-top: auto;
-`;
-
-const TopBarContainer = styled.div`
-  width: 100%;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 32px;
-  background: ${colors.bgLight};
-  color: ${colors.text};
-  box-shadow: 0 0 8px ${colors.bgLight}AA;
-  z-index: 10;
-  position: relative;
-`;
-
 const MainArea = styled.div`
   flex: 1;
   display: flex;
@@ -87,7 +55,7 @@ const MainArea = styled.div`
 `;
 
 const GuideText = styled.div`
-  margin-top: 8px;
+  margin-top: 11px;
   color: ${colors.white};
   font-size: 0.8rem;
   text-align: center;
@@ -120,4 +88,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;

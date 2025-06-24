@@ -4,6 +4,7 @@ import TopBar from './TopBar';
 import Footer from './Footer';
 import { colors } from '../styles/colors';
 import { useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 const FixedNotionEditor = () => {
   const location = useLocation();
@@ -342,12 +343,17 @@ const FixedNotionEditor = () => {
       placeholder: ''
     });
 
-    // YouTube URL 추가
-    if (analysisData.youtube_url) {
+    // sections에 이미 youtube 블록이 있는지 확인
+    const hasYoutubeBlock = analysisData.final_output?.sections?.some(
+      section => section.type === 'youtube'
+    );
+
+    // YouTube URL 추가 (중복 방지)
+    if (analysisData.final_output?.youtube_url && !hasYoutubeBlock) {
       blocks.push({
         id: `block_${blockId++}`,
         type: 'youtube',
-        content: analysisData.youtube_url,
+        content: analysisData.final_output.youtube_url,
         placeholder: ''
       });
     }
@@ -374,7 +380,29 @@ const FixedNotionEditor = () => {
     return blocks;
   }, [parseMarkdownToBlocks]);
 
+  // blocks -> JSON 변환 함수 추가
+  function blocksToJson(blocks) {
+    return {
+      format: 'json',
+      sections: blocks
+        .filter(b => b.type !== 'heading1' && b.type !== 'youtube')
+        .map(b => ({
+          type: 'paragraph',
+          content: b.content.replace(/<[^>]+>/g, '') // HTML 태그 제거
+        }))
+    };
+  }
 
+  // 저장 함수
+  const handleSave = async () => {
+    const jsonData = blocksToJson(blocks);
+    try {
+      await axios.post('/api/report/save', jsonData);
+      alert('저장되었습니다!');
+    } catch (e) {
+      alert('저장 실패: ' + (e?.message || e));
+    }
+  };
 
   useEffect(() => {
     // YouTube 분석 데이터가 있으면 블록으로 변환
@@ -445,14 +473,11 @@ const FixedNotionEditor = () => {
           }}
           onFocus={(e) => {
             setFocusedBlock(block.id);
-            e.target.style.backgroundColor = '#f1f5f9';
             e.target.style.boxShadow = '0 0 0 2px rgba(102, 126, 234, 0.1)';
           }}
           onBlur={(e) => {
             setFocusedBlock(null);
-            e.target.style.backgroundColor = 'transparent';
             e.target.style.boxShadow = 'none';
-            
             // 블러 시에만 상태 동기화 (HTML 내용 유지)
             const content = e.target.innerHTML || '';
             if (content !== block.content) {
@@ -799,106 +824,79 @@ const FixedNotionEditor = () => {
         `}
       </style>
 
+      <div style={{
+        maxWidth: '900px',
+        margin: '0 auto',
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderRadius: '16px',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3)',
+        overflow: 'hidden',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        backdropFilter: 'blur(12px)'
+      }}>
         <div style={{
-          maxWidth: '900px', 
-          margin: '0 auto', 
-          backgroundColor: 'rgba(255,255,255,0.1)',
-          borderRadius: '16px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3)',
-          overflow: 'hidden',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          background: 'rgba(255,255,255,0.1)',
+          padding: '2rem 2rem 1.5rem 2rem',
+          borderBottom: '1px solid rgba(255,255,255,0.2)',
           backdropFilter: 'blur(12px)'
         }}>
-          <div style={{ 
-            background: 'rgba(255,255,255,0.1)',
-            padding: '2rem 2rem 1.5rem 2rem',
-            borderBottom: '1px solid rgba(255,255,255,0.2)',
-            backdropFilter: 'blur(12px)'
-          }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div style={{
-                width: '40px',
-                height: '40px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                borderRadius: '12px',
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+            <button
+              onClick={handleSave}
+              style={{
+                padding: '0.75rem 1.25rem',
+                background: 'linear-gradient(135deg, #111 0%, #222 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s ease-in-out',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.25rem'
-              }}>
-                ✨
-              </div>
-              <h1 style={{ 
-                fontSize: '1.75rem', 
-                fontWeight: '700', 
-                color: colors.white, 
-                margin: 0,
-                textShadow: '0 0 12px rgba(255, 255, 255, 0.5)'
-              }}>
-                Fixed Notion Editor
-              </h1>
-            </div>
-            
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button
-                onClick={() => setBlocks([
-                  { id: 'new_1', type: 'heading1', content: '', placeholder: '무제 문서' },
-                  { id: 'new_2', type: 'paragraph', content: '', placeholder: '여기서 작성을 시작하세요...' }
-                ])}
-                style={{
-                  padding: '0.75rem 1.25rem',
-                  background: 'linear-gradient(135deg, #64748b 0%, #475569 100%)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '10px',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: '600',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                  transition: 'all 0.2s ease-in-out',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}
-              >
-                🗑️ 새 문서
-              </button>
-            </div>
+                gap: '0.5rem'
+              }}
+            >
+              💾 저장
+            </button>
+            <button
+              onClick={() => setBlocks([
+                { id: 'new_1', type: 'heading1', content: '', placeholder: '무제 문서' },
+                { id: 'new_2', type: 'paragraph', content: '', placeholder: '여기서 작성을 시작하세요...' }
+              ])}
+              style={{
+                padding: '0.75rem 1.25rem',
+                background: 'linear-gradient(135deg, #222 0%, #111 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s ease-in-out',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              🗑️ 새 문서
+            </button>
           </div>
-          
-            <div style={{ 
-              background: 'rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(10px)',
-              padding: '1rem',
-              borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.2)'
-            }}>
-              <div style={{ fontSize: '0.875rem', color: colors.white, lineHeight: '1.6' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '1rem' }}>💡</span>
-                  <strong style={{ color: colors.white }}>contentEditable 기반 에디터</strong>
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', fontSize: '0.8rem' }}>
-                  <span><code style={{ background: 'rgba(255, 255, 255, 0.2)', color: colors.white, padding: '2px 6px', borderRadius: '4px', fontWeight: '500' }}># </code>제목</span>
-                  <span><code style={{ background: 'rgba(255, 255, 255, 0.2)', color: colors.white, padding: '2px 6px', borderRadius: '4px', fontWeight: '500' }}>- </code>목록</span>
-                  <span><code style={{ background: 'rgba(255, 255, 255, 0.2)', color: colors.white, padding: '2px 6px', borderRadius: '4px', fontWeight: '500' }}>- [ ] </code>할일</span>
-                  <span>텍스트를 <strong>선택</strong>하면 툴바가 나타남</span>
-                </div>
-              </div>
-            </div>
         </div>
 
-          <div style={{ 
-            padding: '2rem', 
-            lineHeight: '1.7',
-            minHeight: '500px',
-            background: 'rgba(255,255,255,0.05)'
-          }}>
+        <div style={{
+          padding: '2rem',
+          lineHeight: '1.7',
+          minHeight: '500px',
+          background: 'rgba(255,255,255,0.05)'
+        }}>
           {blocks.map((block) => (
-            <div 
-              key={block.id} 
-              style={{ 
+            <div
+              key={block.id}
+              style={{
                 marginBottom: '4px',
                 position: 'relative',
                 transition: 'all 0.2s ease-in-out'
@@ -919,37 +917,8 @@ const FixedNotionEditor = () => {
             </div>
           ))}
         </div>
-
-          <div 
-            style={{ 
-              height: '150px', 
-              cursor: 'text',
-              background: 'rgba(255,255,255,0.05)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderBottomLeftRadius: '16px',
-              borderBottomRightRadius: '16px'
-            }}
-            onClick={() => {
-              const lastBlock = blocks[blocks.length - 1];
-              if (lastBlock) addNewBlock(lastBlock.id);
-            }}
-          >
-            <div style={{
-              color: colors.white,
-              fontSize: '0.875rem',
-              textAlign: 'center',
-              padding: '1rem',
-              opacity: 0.8
-            }}>
-              <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>➕</div>
-              <div>클릭하거나 <strong>Enter</strong>를 눌러 새 블록을 추가하세요</div>
-            </div>
-          </div>
-        </div>
       </div>
-      
+      </div>
       <Footer />
     </div>
   );
