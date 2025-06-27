@@ -579,6 +579,6 @@ export default function MetallicPaint({
   }, [gl, uniforms, imageData]);
 
   return (
-    <canvas ref={canvasRef} className="paint-container" />
+    <canvas ref={canvasRef} className="paint-container" style={{ pointerEvents: 'none' }} />
   );
 }

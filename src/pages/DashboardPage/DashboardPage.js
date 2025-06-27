@@ -6,6 +6,7 @@ import Footer from '../../components/Footer/Footer';
 import axios from 'axios';
 import styles from './DashboardPage.module.css';
 import { FaTasks, FaSpinner, FaClock, FaPlay, FaDownload } from 'react-icons/fa';
+import { jwtDecode } from 'jwt-decode';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -52,102 +53,28 @@ const Dashboard = () => {
     const fetchReports = async () => {
       try {
         setLoading(true);
+        // 1. 내 리포트/메타데이터 목록을 /s3/reports/list로 불러옴
         const response = await axios.get('/s3/reports/list');
-        if (response.data && Array.isArray(response.data) && response.data.length > 0) {
-          const reports = response.data.map(report => ({
-            id: report.id || '',
-            title: report.title || '제목 없음',
-            channel: report.youtube_channel || 'Unknown Channel',
-            duration: report.youtube_duration || 'Unknown',
-            thumbnail: report.youtube_thumbnail || '',
-            type: report.type || 'YouTube',
-            date: report.last_modified || new Date().toISOString(),
-            status: 'completed',
-            hasAudio: false,
-            reportUrl: report.url || '',
-            youtubeUrl: report.youtube_url || '',
-            metadata: report.metadata || {}
-          }));
-          reports.sort((a, b) => new Date(b.date) - new Date(a.date));
-          setRecentAnalyses(reports);
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          setRecentAnalyses(response.data);
           setStats({
-            totalAnalyses: reports.length,
-            savedReports: reports.length,
-            audioFiles: reports.filter(r => r.hasAudio).length,
-            totalViews: reports.length * 3
+            totalAnalyses: response.data.length,
+            savedReports: response.data.length,
+            audioFiles: response.data.filter(r => r.hasAudio).length,
+            totalViews: response.data.length * 3
           });
         } else {
-          await fetchReportsFromS3();
+          setRecentAnalyses([]);
+          setStats({ totalAnalyses: 0, savedReports: 0, audioFiles: 0, totalViews: 0 });
         }
       } catch (err) {
-        try {
-          await fetchReportsFromS3();
-        } catch (s3Err) {
-          setError('보고서 목록을 가져오는데 실패했습니다.');
-        }
+        setError('보고서 목록을 가져오는데 실패했습니다.');
       } finally {
         setLoading(false);
       }
     };
-    const fetchReportsFromS3 = async () => {
-      try {
-        const response = await axios.get('/s3/list?prefix=reports/');
-        if (response.data && Array.isArray(response.data.objects) && response.data.objects.length > 0) {
-          const reports = response.data.objects
-            .filter(obj => obj.Key && obj.Key.endsWith('.json'))
-            .map(obj => ({
-              id: obj.Key,
-              title: extractTitleFromKey(obj.Key) || '제목 없음',
-              type: 'YouTube',
-              date: obj.LastModified || new Date().toISOString(),
-              status: 'completed',
-              hasAudio: false,
-              reportUrl: `https://${response.data.bucket}.s3.${response.data.region}.amazonaws.com/${obj.Key}`
-            }));
-          reports.sort((a, b) => new Date(b.date) - new Date(a.date));
-          setRecentAnalyses(reports);
-          setStats({
-            totalAnalyses: reports.length,
-            savedReports: reports.length,
-            audioFiles: 0,
-            totalViews: reports.length * 3
-          });
-        } else {
-          const dummyReports = [
-            {
-              id: 'report_1',
-              title: '최근 분석한 YouTube 영상',
-              type: 'YouTube',
-              date: new Date().toISOString(),
-              status: 'completed',
-              hasAudio: false
-            }
-          ];
-          setRecentAnalyses(dummyReports);
-          setStats({
-            totalAnalyses: 1,
-            savedReports: 1,
-            audioFiles: 0,
-            totalViews: 3
-          });
-        }
-      } catch (err) {
-        throw err;
-      }
-    };
     fetchReports();
   }, []);
-
-  const extractTitleFromKey = (key) => {
-    if (!key) return '제목 없음';
-    const fileName = key.split('/').pop();
-    const nameWithoutExt = fileName.replace(/\.[^/.]+$/, '');
-    const cleanName = nameWithoutExt
-      .replace(/_report$/, '')
-      .replace(/^report_/, '')
-      .replace(/[0-9a-f]{8}[-_][0-9a-f]{4}[-_][0-9a-f]{4}[-_][0-9a-f]{4}[-_][0-9a-f]{12}/i, '');
-    return cleanName.replace(/_/g, ' ').trim() || '분석 보고서';
-  };
 
   const formatDate = (dateString) => {
     try {
@@ -164,8 +91,9 @@ const Dashboard = () => {
 
   const handleAnalysisClick = (analysis) => {
     setLoading(true);
-    if (analysis.reportUrl) {
-      fetch(analysis.reportUrl)
+    if (analysis.url) {
+      // presigned URL로 보고서 fetch
+      fetch(analysis.url)
         .then(response => response.text())
         .then(data => {
           let parsedData;
@@ -177,7 +105,7 @@ const Dashboard = () => {
           navigate('/editor', {
             state: {
               analysisData: {
-                final_output: parsedData,
+                report: parsedData.report,
                 title: analysis.title
               }
             }
@@ -282,18 +210,20 @@ const Dashboard = () => {
                   onClick={() => handleAnalysisClick(analysis)}
                 >
                   <div className={styles.analysisInfo}>
-                    {analysis.thumbnail && <img src={analysis.thumbnail} alt={analysis.title} className={styles.thumbnail} />}
+                    {analysis.youtube_thumbnail && (
+                      <img src={analysis.youtube_thumbnail} alt={analysis.title} className={styles.thumbnail} />
+                    )}
                     <div className={styles.analysisDetails}>
                       <div className={styles.analysisTitle}>{analysis.title}</div>
-                      <div className={styles.analysisChannel}>{analysis.channel}</div>
+                      <div className={styles.analysisChannel}>{analysis.youtube_channel}</div>
                       <div className={styles.analysisMeta}>
                         <span>{analysis.type}</span>
                         <span>•</span>
-                        <span><FaClock /> {formatDate(analysis.date)}</span>
+                        <span><FaClock /> {formatDate(analysis.last_modified)}</span>
                         <span>•</span>
-                        <span>{analysis.duration}</span>
+                        <span>{analysis.youtube_duration}</span>
                         <span>•</span>
-                        <span>{analysis.status === 'completed' ? '완료' : '진행중'}</span>
+                        <a href={analysis.youtube_url} target="_blank" rel="noopener noreferrer" style={{ color: '#4ade80', textDecoration: 'underline', marginLeft: 4 }}>유튜브 바로가기</a>
                       </div>
                     </div>
                   </div>
