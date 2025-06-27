@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import MainPage from './pages/MainPage/MainPage';
 import DashboardPage from './pages/DashboardPage/DashboardPage';
 import YoutubeSearchPage from './pages/YoutubeSearchPage/YoutubeSearchPage';
-import ReportsPage from './pages/ReportsPage/ReportsPage';
 import EditorPage from './pages/EditorPage/EditorPage';
 import AnalysisStatus from './components/AnalysisStatus/AnalysisStatus';
 
@@ -33,7 +32,6 @@ function App() {
         <Route path="/" element={<MainPage />} />
         <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
         <Route path="/youtube-search" element={<PrivateRoute><YoutubeSearchPage /></PrivateRoute>} />
-        <Route path="/reports" element={<PrivateRoute><ReportsPage /></PrivateRoute>} />
         <Route path="/editor" element={<PrivateRoute><EditorPage /></PrivateRoute>} />
         <Route path="/analysis/:jobId" element={<PrivateRoute><AnalysisStatus /></PrivateRoute>} />
       </Routes>
