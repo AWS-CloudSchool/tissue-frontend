@@ -7,7 +7,6 @@ import Orb from '../../components/Orb/Orb';
 import Aurora from '../../components/Aurora/Aurora';
 import MetallicPaint, { parseLogoImage } from '../../components/MetallicPaint/MetallicPaint';
 import logo from '../../assets/logos/react-bits-logo-small-black.svg';
-import { Input } from "@chakra-ui/react"
 
 const MainPage = () => {
   const [imageData, setImageData] = useState(null);
@@ -76,7 +75,6 @@ const MainPage = () => {
                 <p className={styles.subText}>
                   챗봇과 대화하며 원하는 정보를 쉽게 찾고, 요약 내용을 음성으로 들을 수도 있어요.
                 </p>
-                
                 <InputBox />
                 <div className={styles.guideText}>
                   예시: YouTube URL 또는 PDF/텍스트 파일을 드래그하세요
