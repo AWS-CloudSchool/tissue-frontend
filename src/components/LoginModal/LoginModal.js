@@ -3,6 +3,8 @@ import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import styles from './LoginModal.module.css';
 import ClickSpark from '../ClickSpark/ClickSpark';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -83,8 +85,9 @@ export default function LoginModal({
             onKeyDown={e => { if (e.key === "Enter") handleLogin(); }}
           />
           <span className={styles.showBtn} onClick={() => setShowPassword(v => !v)}>
-            {showPassword ? "숨기기" : "보기"}
+            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
           </span>
+
         </div>
         <button className={styles.loginBtn} onClick={handleLogin}>로그인</button>
         <div className={styles.divider}>또는 SNS로 로그인</div>

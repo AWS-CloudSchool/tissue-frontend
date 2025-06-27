@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import styles from './SignupModal.module.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
@@ -104,39 +106,29 @@ const SignupModal = ({ onClose, onLoginClick }) => {
                   required
                 />
               </div>
-              <div className={styles.inputGroup}>
+              <div className={styles.passwordBox}>
                 <input
                   className={styles.input}
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   placeholder="비밀번호"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  required
                 />
-                <button 
-                  type="button" 
-                  className={styles.passwordToggle} 
-                  onClick={() => setShowPassword(v => !v)}
-                >
-                  {showPassword ? '숨김' : '표시'}
-                </button>
+                <span className={styles.showBtn} onClick={() => setShowPassword(v => !v)}>
+                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                </span>
               </div>
-              <div className={styles.inputGroup}>
+              <div className={styles.passwordBox}>
                 <input
                   className={styles.input}
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder="비밀번호 확인"
-                  value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
-                  required
+                  type={showPassword ? "text" : "password"}
+                  placeholder="비밀번호"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
                 />
-                <button 
-                  type="button" 
-                  className={styles.passwordToggle} 
-                  onClick={() => setShowConfirmPassword(v => !v)}
-                >
-                  {showConfirmPassword ? '숨김' : '표시'}
-                </button>
+                <span className={styles.showBtn} onClick={() => setShowPassword(v => !v)}>
+                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                </span>
               </div>
               <div className={styles.passwordRequirements}>
                 <div className={`${styles.passwordRequirement} ${passwordValidation.isLongEnough ? styles.met : styles.unmet}`}>
