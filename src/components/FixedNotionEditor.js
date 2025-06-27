@@ -5,6 +5,7 @@ import Footer from './Footer';
 import { colors } from '../styles/colors';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
+import BedrockChat from './BedrockChat';
 
 const FixedNotionEditor = () => {
   const location = useLocation();
@@ -17,6 +18,8 @@ const FixedNotionEditor = () => {
   const [showToolbar, setShowToolbar] = useState(false);
   const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
   const [selectionInfo, setSelectionInfo] = useState({ blockId: null, range: null });
+  const [showBedrockChat, setShowBedrockChat] = useState(false);
+  const [reportS3Key, setReportS3Key] = useState(null);
 
   const editorRefs = useRef({});
   const isComposing = useRef(false);
@@ -397,7 +400,10 @@ const FixedNotionEditor = () => {
   const handleSave = async () => {
     const jsonData = blocksToJson(blocks);
     try {
-      await axios.post('/api/report/save', jsonData);
+      const response = await axios.post('/api/report/save', jsonData);
+      if (response.data && response.data.s3_key) {
+        setReportS3Key(response.data.s3_key);
+      }
       alert('저장되었습니다!');
     } catch (e) {
       alert('저장 실패: ' + (e?.message || e));
@@ -681,245 +687,297 @@ const FixedNotionEditor = () => {
   };
 
   return (
-    <div style={{ 
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      color: 'white',
-      fontFamily: 'Arial, sans-serif'
-    }}>
-      <AuroraBackground />
-      <TopBar />
-      
+    <div
+      style={{
+        transition: 'padding-right 0.3s',
+        paddingRight: showBedrockChat ? '400px' : '0'
+      }}
+    >
       <div style={{ 
-        flex: 1,
-        padding: '2rem 1rem',
-        position: 'relative'
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        color: 'white',
+        fontFamily: 'Arial, sans-serif'
       }}>
-        {showToolbar && (
-        <div 
-          className="selection-toolbar"
-          style={{
-            position: 'fixed',
-            left: `${toolbarPosition.x}px`,
-            top: `${toolbarPosition.y}px`,
-            transform: 'translateX(-50%)',
-            background: 'rgba(15, 23, 42, 0.95)',
-            backdropFilter: 'blur(12px)',
-            borderRadius: '12px',
-            padding: '8px',
-            display: 'flex',
-            gap: '4px',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)',
-            border: '1px solid rgba(102, 126, 234, 0.2)',
-            zIndex: 1000,
-            animation: 'fadeInScale 0.15s ease-out'
-          }}
-        >
-          <button
-            onClick={() => applyStyleToSelection('bold')}
-            style={{
-              padding: '8px 10px',
-              background: 'transparent',
-              border: 'none',
-              borderRadius: '6px',
-              color: '#e2e8f0',
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-              fontWeight: '600',
-              transition: 'all 0.15s ease'
-            }}
-            onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(102, 126, 234, 0.2)'}
-            onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
-            title="굵게 (**텍스트**)"
-          >
-            <strong>B</strong>
-          </button>
-          
-          <button
-            onClick={() => applyStyleToSelection('italic')}
-            style={{
-              padding: '8px 10px',
-              background: 'transparent',
-              border: 'none',
-              borderRadius: '6px',
-              color: '#e2e8f0',
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-              fontStyle: 'italic',
-              transition: 'all 0.15s ease'
-            }}
-            onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(102, 126, 234, 0.2)'}
-            onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
-            title="기울임 (*텍스트*)"
-          >
-            I
-          </button>
-          
-          <button
-            onClick={() => applyStyleToSelection('underline')}
-            style={{
-              padding: '8px 10px',
-              background: 'transparent',
-              border: 'none',
-              borderRadius: '6px',
-              color: '#e2e8f0',
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-              textDecoration: 'underline',
-              transition: 'all 0.15s ease'
-            }}
-            onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(102, 126, 234, 0.2)'}
-            onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
-            title="밑줄"
-          >
-            U
-          </button>
-          
-          <button
-            onClick={() => applyStyleToSelection('highlight')}
-            style={{
-              padding: '8px 10px',
-              background: '#ffeb3b',
-              border: 'none',
-              borderRadius: '6px',
-              color: '#000',
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-              fontWeight: '600',
-              transition: 'all 0.15s ease'
-            }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#fff176'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#ffeb3b'}
-            title="하이라이트 (==텍스트==)"
-          >
-            H
-          </button>
-        </div>
-      )}
-
-      <style>
-        {`
-          @keyframes fadeInScale {
-            from {
-              opacity: 0;
-              transform: translateX(-50%) scale(0.95);
-            }
-            to {
-              opacity: 1;
-              transform: translateX(-50%) scale(1);
-            }
-          }
-          
-          [contenteditable]:empty:before {
-            content: attr(data-placeholder);
-            color: rgba(255,255,255,0.5);
-            pointer-events: none;
-            position: absolute;
-          }
-          
-          [contenteditable]:focus:before {
-            display: none;
-          }
-        `}
-      </style>
-
-      <div style={{
-        maxWidth: '900px',
-        margin: '0 auto',
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        borderRadius: '16px',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3)',
-        overflow: 'hidden',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        backdropFilter: 'blur(12px)'
-      }}>
-        <div style={{
-          background: 'rgba(255,255,255,0.1)',
-          padding: '2rem 2rem 1.5rem 2rem',
-          borderBottom: '1px solid rgba(255,255,255,0.2)',
-          backdropFilter: 'blur(12px)'
+        <AuroraBackground />
+        <TopBar />
+        
+        <div style={{ 
+          flex: 1,
+          padding: '2rem 1rem',
+          position: 'relative'
         }}>
-          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+          {showToolbar && (
+          <div 
+            className="selection-toolbar"
+            style={{
+              position: 'fixed',
+              left: `${toolbarPosition.x}px`,
+              top: `${toolbarPosition.y}px`,
+              transform: 'translateX(-50%)',
+              background: 'rgba(15, 23, 42, 0.95)',
+              backdropFilter: 'blur(12px)',
+              borderRadius: '12px',
+              padding: '8px',
+              display: 'flex',
+              gap: '4px',
+              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)',
+              border: '1px solid rgba(102, 126, 234, 0.2)',
+              zIndex: 1000,
+              animation: 'fadeInScale 0.15s ease-out'
+            }}
+          >
             <button
-              onClick={handleSave}
+              onClick={() => applyStyleToSelection('bold')}
               style={{
-                padding: '0.75rem 1.25rem',
-                background: 'linear-gradient(135deg, #111 0%, #222 100%)',
-                color: 'white',
+                padding: '8px 10px',
+                background: 'transparent',
                 border: 'none',
-                borderRadius: '10px',
+                borderRadius: '6px',
+                color: '#e2e8f0',
                 cursor: 'pointer',
                 fontSize: '0.875rem',
                 fontWeight: '600',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s ease-in-out',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
+                transition: 'all 0.15s ease'
               }}
+              onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(102, 126, 234, 0.2)'}
+              onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+              title="굵게 (**텍스트**)"
             >
-              💾 저장
+              <strong>B</strong>
             </button>
+            
             <button
-              onClick={() => setBlocks([
-                { id: 'new_1', type: 'heading1', content: '', placeholder: '무제 문서' },
-                { id: 'new_2', type: 'paragraph', content: '', placeholder: '여기서 작성을 시작하세요...' }
-              ])}
+              onClick={() => applyStyleToSelection('italic')}
               style={{
-                padding: '0.75rem 1.25rem',
-                background: 'linear-gradient(135deg, #222 0%, #111 100%)',
-                color: 'white',
+                padding: '8px 10px',
+                background: 'transparent',
                 border: 'none',
-                borderRadius: '10px',
+                borderRadius: '6px',
+                color: '#e2e8f0',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontStyle: 'italic',
+                transition: 'all 0.15s ease'
+              }}
+              onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(102, 126, 234, 0.2)'}
+              onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+              title="기울임 (*텍스트*)"
+            >
+              I
+            </button>
+            
+            <button
+              onClick={() => applyStyleToSelection('underline')}
+              style={{
+                padding: '8px 10px',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '6px',
+                color: '#e2e8f0',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                textDecoration: 'underline',
+                transition: 'all 0.15s ease'
+              }}
+              onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(102, 126, 234, 0.2)'}
+              onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+              title="밑줄"
+            >
+              U
+            </button>
+            
+            <button
+              onClick={() => applyStyleToSelection('highlight')}
+              style={{
+                padding: '8px 10px',
+                background: '#ffeb3b',
+                border: 'none',
+                borderRadius: '6px',
+                color: '#000',
                 cursor: 'pointer',
                 fontSize: '0.875rem',
                 fontWeight: '600',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s ease-in-out',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
+                transition: 'all 0.15s ease'
               }}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#fff176'}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#ffeb3b'}
+              title="하이라이트 (==텍스트==)"
             >
-              🗑️ 새 문서
+              H
             </button>
           </div>
-        </div>
+        )}
+
+        <style>
+          {`
+            @keyframes fadeInScale {
+              from {
+                opacity: 0;
+                transform: translateX(-50%) scale(0.95);
+              }
+              to {
+                opacity: 1;
+                transform: translateX(-50%) scale(1);
+              }
+            }
+            
+            [contenteditable]:empty:before {
+              content: attr(data-placeholder);
+              color: rgba(255,255,255,0.5);
+              pointer-events: none;
+              position: absolute;
+            }
+            
+            [contenteditable]:focus:before {
+              display: none;
+            }
+          `}
+        </style>
 
         <div style={{
-          padding: '2rem',
-          lineHeight: '1.7',
-          minHeight: '500px',
-          background: 'rgba(255,255,255,0.05)'
+          maxWidth: '900px',
+          margin: '0 auto',
+          backgroundColor: 'rgba(255,255,255,0.1)',
+          borderRadius: '16px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3)',
+          overflow: 'hidden',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          backdropFilter: 'blur(12px)'
         }}>
-          {blocks.map((block) => (
-            <div
-              key={block.id}
-              style={{
-                marginBottom: '4px',
-                position: 'relative',
-                transition: 'all 0.2s ease-in-out'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)';
-                e.currentTarget.style.borderRadius = '8px';
-                e.currentTarget.style.padding = '4px 8px';
-                e.currentTarget.style.margin = '4px -8px';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.padding = '0';
-                e.currentTarget.style.margin = '0';
-              }}
-            >
-              {renderBlock(block)}
+          <div style={{
+            background: 'rgba(255,255,255,0.1)',
+            padding: '2rem 2rem 1.5rem 2rem',
+            borderBottom: '1px solid rgba(255,255,255,0.2)',
+            backdropFilter: 'blur(12px)'
+          }}>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button
+                onClick={handleSave}
+                style={{
+                  padding: '0.75rem 1.25rem',
+                  background: 'linear-gradient(135deg, #111 0%, #222 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.2s ease-in-out',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                💾 저장
+              </button>
+              <button
+                onClick={() => setBlocks([
+                  { id: 'new_1', type: 'heading1', content: '', placeholder: '무제 문서' },
+                  { id: 'new_2', type: 'paragraph', content: '', placeholder: '여기서 작성을 시작하세요...' }
+                ])}
+                style={{
+                  padding: '0.75rem 1.25rem',
+                  background: 'linear-gradient(135deg, #222 0%, #111 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.2s ease-in-out',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                🗑️ 새 문서
+              </button>
             </div>
-          ))}
+          </div>
+
+          <div style={{
+            padding: '2rem',
+            lineHeight: '1.7',
+            minHeight: '500px',
+            background: 'rgba(255,255,255,0.05)'
+          }}>
+            {blocks.map((block) => (
+              <div
+                key={block.id}
+                style={{
+                  marginBottom: '4px',
+                  position: 'relative',
+                  transition: 'all 0.2s ease-in-out'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)';
+                  e.currentTarget.style.borderRadius = '8px';
+                  e.currentTarget.style.padding = '4px 8px';
+                  e.currentTarget.style.margin = '4px -8px';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.padding = '0';
+                  e.currentTarget.style.margin = '0';
+                }}
+              >
+                {renderBlock(block)}
+              </div>
+            ))}
+          </div>
         </div>
+        </div>
+        <Footer />
+
+        {/* 챗봇 패널 (오른쪽 슬라이드) */}
+        {showBedrockChat && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              right: 0,
+              width: '400px',
+              height: '100vh',
+              background: '#222',
+              zIndex: 1000,
+              boxShadow: '-4px 0 16px rgba(0,0,0,0.15)',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            <BedrockChat s3Key={reportS3Key} onClose={() => setShowBedrockChat(false)} />
+          </div>
+        )}
+
+        {/* 챗봇 열기 버튼 (챗봇이 닫혀 있을 때만) */}
+        {!showBedrockChat && (
+          <button
+            onClick={() => setShowBedrockChat(true)}
+            style={{
+              position: 'fixed',
+              bottom: '32px',
+              right: '32px',
+              zIndex: 1100,
+              background: '#4a90e2',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '50%',
+              width: '60px',
+              height: '60px',
+              fontSize: '2rem',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+              cursor: 'pointer'
+            }}
+            title="Bedrock 챗봇 열기"
+          >
+            🤖
+          </button>
+        )}
       </div>
-      </div>
-      <Footer />
     </div>
   );
 };
