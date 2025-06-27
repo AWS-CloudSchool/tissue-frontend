@@ -17,5 +17,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
+<<<<<<< HEAD
   pointer-events: auto; /* 내부 버튼 등은 정상 동작 */
+=======
+  /*pointer-events: none;*/
+>>>>>>> 3cd2ac9a030f77b8fd3283259b03d1c041c2541e
 }

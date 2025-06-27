@@ -7,6 +7,7 @@ import Orb from '../../components/Orb/Orb';
 import Aurora from '../../components/Aurora/Aurora';
 import MetallicPaint, { parseLogoImage } from '../../components/MetallicPaint/MetallicPaint';
 import logo from '../../assets/logos/react-bits-logo-small-black.svg';
+import ClickSpark from '../../components/ClickSpark/ClickSpark'
 
 const MainPage = () => {
   const [imageData, setImageData] = useState(null);
@@ -53,6 +54,13 @@ const MainPage = () => {
       </div>
 
       {/* ✅ 상단 UI */}
+      <ClickSpark
+        sparkColor='#fff'
+        sparkSize={10}
+        sparkRadius={15}
+        sparkCount={8}
+        duration={400}
+      >
       <TopBar />
 
       {/* ✅ 본문 */}
@@ -84,6 +92,7 @@ const MainPage = () => {
           </div>
         </div>
       </main>
+      </ClickSpark>
 
       {/* ✅ 하단 */}
       <Footer />

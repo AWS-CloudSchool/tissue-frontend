@@ -3,6 +3,7 @@ import LoginModal from '../LoginModal/LoginModal';
 import SignupModal from '../SignupModal/SignupModal';
 import styles from './TopBar.module.css';
 import { useNavigate } from 'react-router-dom';
+import ClickSpark from '../ClickSpark/ClickSpark';
 
 const TopBar = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -61,6 +62,13 @@ const TopBar = () => {
         )}
       </div>
       {showLogin && (
+        <ClickSpark
+          sparkColor='#fff'
+          sparkSize={10}
+          sparkRadius={15}
+          sparkCount={8}
+          duration={400}
+        >   
         <LoginModal
           onClose={() => setShowLogin(false)}
           onSignupClick={() => {
@@ -69,8 +77,16 @@ const TopBar = () => {
           }}
           onLoginSuccess={handleLoginSuccess}
         />
+        </ClickSpark>
       )}
       {showSignup && (
+        <ClickSpark
+          sparkColor='#fff'
+          sparkSize={10}
+          sparkRadius={15}
+          sparkCount={8}
+          duration={400}
+        >   
         <SignupModal
           onClose={() => setShowSignup(false)}
           onLoginClick={() => {
@@ -78,6 +94,7 @@ const TopBar = () => {
             setShowLogin(true);
           }}
         />
+        </ClickSpark>
       )}
     </>
   );
