@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-import { ModalOverlay, ModalContent, Button, Input } from '../../styles';
 import styles from './LoginModal.module.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -17,55 +15,48 @@ export default function LoginModal({
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [warn, setWarn] = useState(warningMessage);
-  const [isLoading, setIsLoading] = useState(false);
+
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      setWarn("이메일과 비밀번호를 입력해주세요.");
+    if (!isValidEmail || !password) {
+      setWarn("이메일과 비밀번호를 모두 입력해주세요.");
       return;
     }
-
-    setIsLoading(true);
     setWarn("");
-
     try {
       const response = await axios.post(`${API_BASE_URL}/auth/login`, {
-        email: email,
-        password: password,
+        email,
+        password,
       });
-
-      if (response.data.access_token) {
-        localStorage.setItem('access_token', response.data.access_token);
-        const decoded = jwtDecode(response.data.access_token);
-        onLoginSuccess(decoded);
+      const { access_token: accessToken, id_token: idToken } = response.data;
+      if (!accessToken || !idToken) {
+        setWarn("로그인 실패: 토큰이 없습니다.");
+        return;
       }
+      const decoded = jwtDecode(idToken);
+      const user = {
+        username: decoded["cognito:username"],
+        email: decoded.email,
+      };
+      localStorage.setItem("access_token", accessToken);
+      localStorage.setItem("id_token", idToken);
+      onLoginSuccess && onLoginSuccess({ accessToken, idToken, user });
     } catch (error) {
-      console.error('Login error:', error);
-      if (error.response?.data?.detail) {
-        setWarn(error.response.data.detail);
-      } else {
-        setWarn("로그인 중 오류가 발생했습니다.");
-      }
-    } finally {
-      setIsLoading(false);
+      const detail = error.response?.data?.detail;
+      setWarn(`로그인 실패: ${detail || error.message}`);
     }
   };
 
   return (
-    <ModalOverlay>
-      <ModalContent
-        as={motion.div}
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.8, opacity: 0 }}
-        maxWidth="700px"
-      >
+    <div className={styles.overlay}>
+      <div className={styles.modalBox}>
         <button className={styles.closeBtn} onClick={onClose} title="닫기">×</button>
-        <div className={styles.title}>로그인</div>
+        <h2 className={styles.title}>로그인</h2>
         {warn && <div className={styles.warning}>{warn}</div>}
-        
         <div className={styles.passwordBox}>
-          <Input
+          <input
+            className={styles.input}
             type="email"
             placeholder="이메일"
             value={email}
@@ -74,9 +65,9 @@ export default function LoginModal({
             onKeyDown={e => { if (e.key === "Enter") handleLogin(); }}
           />
         </div>
-        
         <div className={styles.passwordBox}>
-          <Input
+          <input
+            className={styles.input}
             type={showPassword ? "text" : "password"}
             placeholder="비밀번호"
             value={password}
@@ -87,33 +78,21 @@ export default function LoginModal({
             {showPassword ? "숨기기" : "보기"}
           </span>
         </div>
-        
-        <Button 
-          variant="primary" 
-          onClick={handleLogin}
-          disabled={isLoading}
-          className={styles.loginButton}
-        >
-          {isLoading ? '로그인 중...' : '로그인'}
-        </Button>
-        
+        <button className={styles.loginBtn} onClick={handleLogin}>로그인</button>
         <div className={styles.divider}>또는 SNS로 로그인</div>
-        
         <button className={styles.snsBtn} onClick={() => window.location.href = `${API_BASE_URL}/auth/google/login`}>
           <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google" />
           Google 계정으로 로그인
         </button>
-        
         <button className={styles.snsBtn} onClick={() => alert("애플 로그인") }>
           <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" alt="Apple" />
           Apple 계정으로 로그인
         </button>
-        
         <div className={styles.signupBox}>
           계정이 없으신가요?
           <button className={styles.signupBtn} onClick={onSignupClick}>회원가입</button>
         </div>
-      </ModalContent>
-    </ModalOverlay>
+      </div>
+    </div>
   );
 } 

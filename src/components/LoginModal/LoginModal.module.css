@@ -1,119 +1,87 @@
+.overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.32);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.modalBox {
+  background: rgba(0,0,0,0.92);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18);
+  padding: 32px 20px 24px 20px;
+  min-width: 700px;
+  max-width: 96vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  animation: modalIn 0.18s cubic-bezier(.4,0,.2,1);
+}
+@media (max-width: 800px) {
+  .modalBox {
+    min-width: unset;
+    width: 95vw;
+    padding: 18px 8px 18px 8px;
+  }
+}
 .closeBtn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  color: #eaffb7;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  position: absolute; top: 14px; right: 14px;
+  background: none; border: none; font-size: 1.2rem;
+  color: #eaffb7; cursor: pointer;
 }
-
-.closeBtn:hover {
-  color: #ffffff;
+.title { font-size: 1.08rem; font-weight: bold; margin-bottom: 18px; color: #fff; }
+.input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.2px solid #7e5cff;
+  border-radius: 6px;
+  font-size: 0.98rem;
+  outline: none;
+  background: #0f172a;
+  color: #fff;
+  margin-bottom: 0;
 }
-
-.title {
-  font-size: 1.125rem;
-  font-weight: 700;
-  margin-bottom: 1.25rem;
-  color: #ffffff;
-}
-
 .passwordBox {
   width: 65%;
   position: relative;
-  margin-bottom: 0.75rem;
+  margin-bottom: 10px;
 }
-
-.showBtn {
-  position: absolute;
-  top: 50%;
-  right: 0.75rem;
-  transform: translateY(-50%);
-  font-size: 0.875rem;
-  color: #6b7280;
+.showBtn { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); font-size: 0.85rem; color: #888; cursor: pointer; user-select: none; background: #fff; padding: 0 4px; }
+.loginBtn {
+  width: 65%;
+  padding: 10px 0;
+  background: #111;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  margin-top: 10px;
   cursor: pointer;
-  user-select: none;
-  background: #ffffff;
-  padding: 0 0.25rem;
-  border-radius: 0.25rem;
-  transition: all 0.3s ease;
+  transition: background 0.18s;
 }
-
-.showBtn:hover {
-  color: #3b82f6;
-}
-
-.warning {
-  color: #ef4444;
-  font-size: 0.875rem;
-  margin-bottom: 0.75rem;
-  text-align: center;
-}
-
-.divider {
-  width: 100%;
-  text-align: center;
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin: 1.25rem 0 0.75rem 0;
-}
-
+.loginBtn:hover { background: #222; color: #fff; }
+.warning { color: #ff5a5a; font-size: 0.92rem; margin-bottom: 10px; text-align: center; }
+.divider { width: 100%; text-align: center; color: #aaa; font-size: 0.88rem; margin: 18px 0 10px 0; }
 .snsBtn {
   width: 65%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1.2px solid #1e40af;
-  background: #3b82f6;
-  color: #ffffff;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  border: 1.2px solid #222;
+  background: #111;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 0.98rem;
   font-weight: 500;
-  padding: 0.5rem 0;
-  margin-bottom: 0.5rem;
+  padding: 8px 0;
+  margin-bottom: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background 0.15s;
 }
-
-.snsBtn:hover {
-  background: #1e40af;
-  color: #ffffff;
-}
-
-.snsBtn img {
-  width: 18px;
-  height: 18px;
-  margin-right: 0.5rem;
-  object-fit: contain;
-}
-
-.signupBox {
-  margin-top: 1rem;
-  text-align: center;
-  color: #6b7280;
-  font-size: 0.875rem;
-}
-
-.signupBtn {
-  color: #ffffff;
-  background: none;
-  border: none;
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin-left: 0.25rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.signupBtn:hover {
-  text-decoration: underline;
-  color: #6b7280;
-}
-
-.loginButton {
-  width: 65%;
-  margin-top: 0.75rem;
-} 
+.snsBtn:hover { background: #222; color: #fff; }
+.snsBtn img { width: 18px; height: 18px; margin-right: 8px; object-fit: contain; }
+.signupBox { margin-top: 16px; text-align: center; color: #aaa; font-size: 0.92rem; }
+.signupBtn { color: #fff; background: none; border: none; font-size: 0.92rem; font-weight: 600; margin-left: 4px; cursor: pointer; }
+.signupBtn:hover { text-decoration: underline; color: #aaa; } 
