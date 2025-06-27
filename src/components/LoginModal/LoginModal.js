@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import styles from './LoginModal.module.css';
+import ClickSpark from '../ClickSpark/ClickSpark';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -49,7 +50,14 @@ export default function LoginModal({
   };
 
   return (
-    <div className={styles.overlay}>
+    <ClickSpark
+      sparkColor='#fff'
+      sparkSize={10}
+      sparkRadius={15}
+      sparkCount={8}
+      duration={400}
+    >  
+    <div className={styles.overlay}> 
       <div className={styles.modalBox}>
         <button className={styles.closeBtn} onClick={onClose} title="닫기">×</button>
         <h2 className={styles.title}>로그인</h2>
@@ -94,5 +102,6 @@ export default function LoginModal({
         </div>
       </div>
     </div>
+    </ClickSpark>   
   );
 } 
