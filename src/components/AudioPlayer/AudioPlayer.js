@@ -1,137 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
 import { FaPlay, FaPause, FaVolumeUp, FaDownload } from 'react-icons/fa';
-import { colors } from '../styles/colors';
-
-const PlayerContainer = styled.div`
-  background: rgba(255,255,255,0.1);
-  border-radius: 12px;
-  padding: 1rem;
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.2);
-  margin: 1rem 0;
-`;
-
-const PlayerHeader = styled.div`
-  display: flex;
-  justify-content: between;
-  align-items: center;
-  margin-bottom: 1rem;
-`;
-
-const PlayerTitle = styled.h4`
-  color: ${colors.white};
-  margin: 0;
-  font-size: 1rem;
-  flex: 1;
-`;
-
-const DownloadButton = styled.button`
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 6px;
-  padding: 0.5rem;
-  color: ${colors.white};
-  cursor: pointer;
-  transition: all 0.2s;
-  &:hover {
-    background: rgba(255,255,255,0.2);
-  }
-`;
-
-const Controls = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const PlayButton = styled.button`
-  background: #eaffb7;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #7e7e00;
-  cursor: pointer;
-  transition: all 0.2s;
-  &:hover {
-    background: #f7ffde;
-    transform: scale(1.05);
-  }
-`;
-
-const ProgressContainer = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
-const ProgressBar = styled.div`
-  width: 100%;
-  height: 4px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 2px;
-  cursor: pointer;
-  position: relative;
-`;
-
-const ProgressFill = styled.div`
-  height: 100%;
-  background: #eaffb7;
-  border-radius: 2px;
-  width: ${props => props.progress}%;
-  transition: width 0.1s ease;
-`;
-
-const TimeDisplay = styled.div`
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  color: ${colors.white};
-  opacity: 0.7;
-`;
-
-const VolumeContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const VolumeSlider = styled.input`
-  width: 60px;
-  height: 4px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 2px;
-  outline: none;
-  -webkit-appearance: none;
-  
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 12px;
-    height: 12px;
-    background: #eaffb7;
-    border-radius: 50%;
-    cursor: pointer;
-  }
-`;
-
-const LoadingState = styled.div`
-  text-align: center;
-  color: ${colors.white};
-  opacity: 0.7;
-  padding: 1rem;
-`;
-
-const ErrorState = styled.div`
-  text-align: center;
-  color: #ff6b6b;
-  padding: 1rem;
-  font-size: 0.9rem;
-`;
+import styles from './AudioPlayer.module.css';
 
 const AudioPlayer = ({ audioUrl, title = "오디오 재생", onGenerate }) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -246,52 +115,57 @@ const AudioPlayer = ({ audioUrl, title = "오디오 재생", onGenerate }) => {
 
   if (error) {
     return (
-      <PlayerContainer>
-        <ErrorState>{error}</ErrorState>
-      </PlayerContainer>
+      <div className={styles.playerContainer}>
+        <div className={styles.errorState}>{error}</div>
+      </div>
     );
   }
 
   return (
-    <PlayerContainer>
+    <div className={styles.playerContainer}>
       {audioUrl && (
         <audio
           ref={audioRef}
           src={audioUrl}
           preload="metadata"
+          className={styles.audio}
         />
       )}
       
-      <PlayerHeader>
-        <PlayerTitle>{title}</PlayerTitle>
+      <div className={styles.playerHeader}>
+        <h4 className={styles.playerTitle}>{title}</h4>
         {audioUrl && (
-          <DownloadButton onClick={handleDownload}>
+          <button className={styles.downloadButton} onClick={handleDownload}>
             <FaDownload />
-          </DownloadButton>
+          </button>
         )}
-      </PlayerHeader>
+      </div>
 
       {isLoading ? (
-        <LoadingState>오디오 생성 중...</LoadingState>
+        <div className={styles.loadingState}>오디오 생성 중...</div>
       ) : (
-        <Controls>
-          <PlayButton onClick={togglePlay}>
+        <div className={styles.controls}>
+          <button className={styles.playButton} onClick={togglePlay}>
             {isPlaying ? <FaPause /> : <FaPlay />}
-          </PlayButton>
+          </button>
 
-          <ProgressContainer>
-            <ProgressBar onClick={handleProgressClick}>
-              <ProgressFill progress={progress} />
-            </ProgressBar>
-            <TimeDisplay>
+          <div className={styles.progressContainer}>
+            <div className={styles.progressBar} onClick={handleProgressClick}>
+              <div 
+                className={styles.progressFill} 
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <div className={styles.timeDisplay}>
               <span>{formatTime(currentTime)}</span>
               <span>{formatTime(duration)}</span>
-            </TimeDisplay>
-          </ProgressContainer>
+            </div>
+          </div>
 
-          <VolumeContainer>
-            <FaVolumeUp color={colors.white} opacity={0.7} />
-            <VolumeSlider
+          <div className={styles.volumeContainer}>
+            <FaVolumeUp color="#ffffff" opacity={0.7} />
+            <input
+              className={styles.volumeSlider}
               type="range"
               min="0"
               max="1"
@@ -299,11 +173,11 @@ const AudioPlayer = ({ audioUrl, title = "오디오 재생", onGenerate }) => {
               value={volume}
               onChange={handleVolumeChange}
             />
-          </VolumeContainer>
-        </Controls>
+          </div>
+        </div>
       )}
-    </PlayerContainer>
+    </div>
   );
 };
 
-export default AudioPlayer;
+export default AudioPlayer; 

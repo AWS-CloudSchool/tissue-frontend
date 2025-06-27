@@ -3,11 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { createGlobalStyle } from 'styled-components';
 import axios from "axios";
-import YoutubeSearchPage from './components/YoutubeSearchPage';
-import FixedNotionEditor from './components/FixedNotionEditor';
-import Dashboard from './components/Dashboard';
-import AnalysisStatus from './components/AnalysisStatus';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 
 axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL;
 
@@ -27,11 +23,7 @@ axios.interceptors.response.use(
   res => res,
   err => {
     if (err.response?.status === 401) {
-      // 로그인 모달 띄우기 (전역 상태/이벤트 활용 필요)
-      // 예시: window.dispatchEvent(new Event('show-login-modal'));
-      // 또는 전역 상태관리(Recoil, Redux 등)로 로그인 모달 상태 변경
       alert('로그인이 필요합니다.');
-      // location.href = '/login'; // 또는 로그인 페이지로 이동
     }
     return Promise.reject(err);
   }
@@ -54,30 +46,12 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-// PrivateRoute 컴포넌트
-const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem('access_token');
-  if (!token) {
-    alert('로그인이 필요합니다.');
-    return <Navigate to="/" replace />; // 또는 로그인 모달/페이지로 이동
-  }
-  return children;
-};
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-// <React.StrictMode>
   <>
     <GlobalStyle />
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/youtube-search" element={<PrivateRoute><YoutubeSearchPage /></PrivateRoute>} />
-        <Route path="/editor" element={<PrivateRoute><FixedNotionEditor /></PrivateRoute>} />
-        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        <Route path="/analysis/:jobId" element={<PrivateRoute><AnalysisStatus /></PrivateRoute>} />
-      </Routes>
+      <App />
     </BrowserRouter>
   </>
-//  </React.StrictMode>
 );
