@@ -4,6 +4,7 @@ import App from './App';
 import { createGlobalStyle } from 'styled-components';
 import axios from "axios";
 import { BrowserRouter } from 'react-router-dom';
+import { ChakraProvider } from '@chakra-ui/react';
 
 axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL;
 
