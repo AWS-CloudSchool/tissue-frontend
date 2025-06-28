@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AuroraBackground from '../../components/AuroraBackground/AuroraBackground';
 import TopBar from '../../components/TopBar/TopBar';
 import Footer from '../../components/Footer/Footer';
 import axios from 'axios';
