@@ -21,12 +21,27 @@
   color: #fff;
   margin-bottom: 0;
 }
+
+.darkInput {
+  background-color: #0f172a;
+  border: 1.2px solid #3b3b3b;
+  color: #fff;
+}
+
+.darkInput::placeholder {
+  color: #888;
+}
+
 .passwordBox {
   width: 65%;
   position: relative;
   margin-bottom: 10px;
 }
 .showBtn { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); font-size: 0.85rem; color: #888; cursor: pointer; user-select: none; background: #fff; padding: 0 4px; }
+.darkShowBtn {
+  color: #ccc;
+  background: transparent;
+}
 
 .modalBox {
   background: rgba(15, 23, 42, 4);
@@ -135,8 +150,9 @@
   padding: 10px 0;
   background: #111;
   color: #ffffff;
+  border: 1.2px solid #3b82f6;
   font-weight: bold;
-  border: none;
+  /*border: none;*/
   border-radius: 6px;
   font-size: 1rem;
   margin-top: 10px;

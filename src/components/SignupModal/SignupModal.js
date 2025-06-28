@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import styles from './SignupModal.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faEyeSlash, } from '@fortawesome/free-solid-svg-icons';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
@@ -34,21 +34,31 @@ const SignupModal = ({ onClose, onLoginClick }) => {
   const handleSignup = async (e) => {
     e.preventDefault();
     setError('');
+
     if (!email) {
       setError('이메일을 입력하세요.');
       return;
     }
-    if (!passwordValidation.isLongEnough || !passwordValidation.hasUpperCase || !passwordValidation.hasLowerCase || !passwordValidation.hasNumber || !passwordValidation.hasSpecialChar) {
+
+    if (
+      !passwordValidation.isLongEnough ||
+      !passwordValidation.hasUpperCase ||
+      !passwordValidation.hasLowerCase ||
+      !passwordValidation.hasNumber ||
+      !passwordValidation.hasSpecialChar
+    ) {
       setError('비밀번호가 모든 조건을 만족해야 합니다.');
       return;
     }
+
     if (password !== confirmPassword) {
       setError('비밀번호가 일치하지 않습니다.');
       return;
     }
+
     setIsLoading(true);
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/signup`, {
+      await axios.post(`${API_BASE_URL}/auth/signup`, {
         email,
         password,
         password_confirm: confirmPassword
@@ -71,7 +81,7 @@ const SignupModal = ({ onClose, onLoginClick }) => {
     setConfirmError('');
     setIsLoading(true);
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/confirm`, {
+      await axios.post(`${API_BASE_URL}/auth/confirm`, {
         email,
         code: confirmCode
       });
@@ -106,30 +116,34 @@ const SignupModal = ({ onClose, onLoginClick }) => {
                   required
                 />
               </div>
+
               <div className={styles.passwordBox}>
                 <input
-                  className={styles.input}
+                  className={`${styles.input}`}
                   type={showPassword ? "text" : "password"}
                   placeholder="비밀번호"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                 />
                 <span className={styles.showBtn} onClick={() => setShowPassword(v => !v)}>
-                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} color="#000" />
                 </span>
               </div>
+
               <div className={styles.passwordBox}>
                 <input
-                  className={styles.input}
-                  type={showPassword ? "text" : "password"}
-                  placeholder="비밀번호"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  className={`${styles.input} ${styles.darkInput}`}  // 다크모드용 스타일 추가
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="비밀번호 확인"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
                 />
-                <span className={styles.showBtn} onClick={() => setShowPassword(v => !v)}>
-                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                <span className={`${styles.showBtn} ${styles.darkShowBtn}`} onClick={() => setShowConfirmPassword(v => !v)}>
+                  <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} color="#ccc" />
                 </span>
               </div>
+
+
               <div className={styles.passwordRequirements}>
                 <div className={`${styles.passwordRequirement} ${passwordValidation.isLongEnough ? styles.met : styles.unmet}`}>
                   8자 이상
@@ -147,11 +161,14 @@ const SignupModal = ({ onClose, onLoginClick }) => {
                   특수문자 포함
                 </div>
               </div>
+
               {error && <div className={styles.warning}>{error}</div>}
+
               <button type="submit" className={styles.signupButton} disabled={isLoading}>
                 {isLoading ? '처리 중...' : '회원가입'}
               </button>
             </form>
+
             <div className={styles.loginLink}>
               이미 계정이 있으신가요?
               <span onClick={onLoginClick}>로그인</span>
@@ -197,4 +214,4 @@ const SignupModal = ({ onClose, onLoginClick }) => {
   );
 };
 
-export default SignupModal; 
+export default SignupModal;
