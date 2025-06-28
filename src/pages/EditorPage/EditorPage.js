@@ -16,8 +16,8 @@ const EditorPage = () => {
   const location = useLocation();
   const [report, setReport] = useState(null);
   const [blocks, setBlocks] = useState([
-    { id: 'intro', type: 'heading1', content: '', placeholder: '제목을 입력하세요...' },
-    { id: 'desc', type: 'paragraph', content: '', placeholder: '내용을 입력하세요...' }
+    { id: 'intro', type: 'heading1', content: '', placeholder: '제목을 입력하세요.' },
+    { id: 'desc', type: 'paragraph', content: '', placeholder: '내용을 입력하세요.' }
   ]);
   const [focusedBlock, setFocusedBlock] = useState(null);
   const [showToolbar, setShowToolbar] = useState(false);
@@ -349,11 +349,11 @@ const EditorPage = () => {
         )}
         <div className={styles.editorWrapper}>
           <div className={styles.editorHeader}>
-            <button className={styles.button} onClick={handleSave}>💾 저장</button>
+            <button className={styles.button} onClick={handleSave}>💾 Save</button>
             <button className={`${styles.button} ${styles.secondary}`} onClick={() => setBlocks([
               { id: 'new_1', type: 'heading1', content: '', placeholder: '무제 문서' },
-              { id: 'new_2', type: 'paragraph', content: '', placeholder: '여기서 작성을 시작하세요...' }
-            ])}>🗑️ 새 문서</button>
+              { id: 'new_2', type: 'paragraph', content: '', placeholder: '여기서 작성을 시작하세요.' }
+            ])}>🗑️ Add</button>
           </div>
           <div className={styles.editorBody}>
             {report && Array.isArray(report.sections) ? (

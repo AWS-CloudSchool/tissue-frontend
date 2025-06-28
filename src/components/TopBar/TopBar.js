@@ -49,8 +49,8 @@ const TopBar = () => {
       <div className={styles.topBarContainer}>
         <div className={styles.leftSection}>
           <div className={styles.logo} onClick={() => navigate('/')}>aurora report</div>
-          <button className={styles.navMenu} onClick={() => navigate('/dashboard')}>대시보드</button>
-          <button className={styles.navMenu} onClick={() => navigate('/editor')}>에디터</button>
+          <button className={styles.navMenu} onClick={() => navigate('/dashboard')}>DashBoard</button>
+          <button className={styles.navMenu} onClick={() => navigate('/editor')}>Editor</button>
         </div>
         {user ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
