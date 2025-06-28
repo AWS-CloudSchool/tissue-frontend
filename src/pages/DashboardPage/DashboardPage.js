@@ -6,7 +6,6 @@ import Footer from '../../components/Footer/Footer';
 import axios from 'axios';
 import styles from './DashboardPage.module.css';
 import { FaTasks, FaSpinner, FaClock, FaPlay, FaDownload } from 'react-icons/fa';
-import { jwtDecode } from 'jwt-decode';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -20,40 +19,30 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [processingJobs, setProcessingJobs] = useState([]);
-  const [progressMap, setProgressMap] = useState({});
 
   useEffect(() => {
     let interval;
     const fetchJobs = async () => {
       try {
-        const res = await axios.get('/user/jobs');
+        const res = await axios.get('/youtube/jobs');
         if (res.data && Array.isArray(res.data.jobs)) {
           const processing = res.data.jobs.filter(j => j.status === 'processing');
           setProcessingJobs(processing);
         }
-      } catch (e) {}
-    };
-    const fetchProgress = async () => {
-      for (const job of processingJobs) {
-        try {
-          const res = await axios.get(`/user/jobs/${job.id}/progress`);
-          setProgressMap(prev => ({ ...prev, [job.id]: res.data }));
-        } catch (e) {}
+      } catch (e) {
+        console.error('작업 목록 조회 실패:', e);
       }
     };
+    
     fetchJobs();
-    interval = setInterval(() => {
-      fetchJobs();
-      fetchProgress();
-    }, 3000);
+    interval = setInterval(fetchJobs, 3000);
     return () => clearInterval(interval);
-  }, [processingJobs.length]);
+  }, []);
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
         setLoading(true);
-        // 1. 내 리포트/메타데이터 목록을 /s3/reports/list로 불러옴
         const response = await axios.get('/s3/reports/list');
         if (Array.isArray(response.data) && response.data.length > 0) {
           setRecentAnalyses(response.data);
@@ -68,6 +57,7 @@ const Dashboard = () => {
           setStats({ totalAnalyses: 0, savedReports: 0, audioFiles: 0, totalViews: 0 });
         }
       } catch (err) {
+        console.error('보고서 목록 조회 에러:', err);
         setError('보고서 목록을 가져오는데 실패했습니다.');
       } finally {
         setLoading(false);
@@ -92,7 +82,6 @@ const Dashboard = () => {
   const handleAnalysisClick = (analysis) => {
     setLoading(true);
     if (analysis.url) {
-      // presigned URL로 보고서 fetch
       fetch(analysis.url)
         .then(response => response.text())
         .then(data => {
@@ -112,6 +101,7 @@ const Dashboard = () => {
           });
         })
         .catch(error => {
+          console.error('보고서 데이터 조회 에러:', error);
           setError('보고서 데이터를 가져오는데 실패했습니다.');
         })
         .finally(() => {
@@ -146,6 +136,7 @@ const Dashboard = () => {
           <h1 className={styles.title}>대시보드</h1>
           <div className={styles.subtitle}>분석 현황과 최근 활동을 확인하세요</div>
         </div>
+        
         {processingJobs.length > 0 && (
           <div className={styles.section}>
             <div className={styles.sectionTitle}><FaTasks /> 진행중인 작업</div>
@@ -154,16 +145,13 @@ const Dashboard = () => {
                 <div className={styles.analysisItem} key={job.id}>
                   <div className={styles.analysisInfo}>
                     <div className={styles.analysisDetails}>
-                      <div className={styles.analysisTitle}>{job.input_data?.youtube_url || 'YouTube 분석'}</div>
+                      <div className={styles.analysisTitle}>
+                        {job.input_data?.youtube_url || 'YouTube 분석'}
+                      </div>
                       <div className={styles.analysisMeta}>
                         <span>Job ID: {job.id}</span>
                         <span>•</span>
-                        <span>상태: {job.status === 'processing' ? '진행중' : job.status}</span>
-                        <span>•</span>
-                        <span>
-                          진행률: {progressMap[job.id]?.progress ?? 0}%
-                          {progressMap[job.id]?.message ? ` (${progressMap[job.id].message})` : ''}
-                        </span>
+                        <span>상태: 진행중</span>
                       </div>
                     </div>
                   </div>
@@ -175,6 +163,7 @@ const Dashboard = () => {
             </div>
           </div>
         )}
+
         <div className={styles.statsGrid}>
           <div className={styles.statCard}>
             <div className={styles.statNumber}>{stats.totalAnalyses}</div>
@@ -193,6 +182,7 @@ const Dashboard = () => {
             <div className={styles.statLabel}>총 조회수</div>
           </div>
         </div>
+
         <div className={styles.section}>
           <div className={styles.sectionTitle}>분석 결과</div>
           {error && <div className={styles.errorState}>{error}</div>}
@@ -222,8 +212,12 @@ const Dashboard = () => {
                         <span><FaClock /> {formatDate(analysis.last_modified)}</span>
                         <span>•</span>
                         <span>{analysis.youtube_duration}</span>
-                        <span>•</span>
-                        <a href={analysis.youtube_url} target="_blank" rel="noopener noreferrer" style={{ color: '#4ade80', textDecoration: 'underline', marginLeft: 4 }}>유튜브 바로가기</a>
+                        {analysis.youtube_url && (
+                          <>
+                            <span>•</span>
+                            <a href={analysis.youtube_url} target="_blank" rel="noopener noreferrer" style={{ color: '#4ade80', textDecoration: 'underline', marginLeft: 4 }}>유튜브 바로가기</a>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -249,4 +243,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;
