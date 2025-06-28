@@ -4,7 +4,6 @@
   height: 100%;
   overflow: hidden;
   z-index: 2; /* ✅ Aurora보다 위로 올라오도록 */
-  pointer-events: none; /* 입력 방해 방지 */
 }
 
 .orb-children {

@@ -24,6 +24,7 @@
     "react-scripts": "5.0.1",
     "reactflow": "^11.11.4",
     "styled-components": "^6.1.8",
+    "three": "^0.177.0",
     "vis-network": "^9.1.12"
   },
   "scripts": {
