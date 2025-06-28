@@ -19,6 +19,31 @@ const InputBox = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const pollJobStatus = async (jobId) => {
+    try {
+      const response = await axios.get(`/youtube/jobs/${jobId}/status`);
+      if (response.data.status === 'completed') {
+        // 완료되면 결과 가져오기
+        const resultResponse = await axios.get(`/youtube/jobs/${jobId}/result`);
+        if (resultResponse.data.content) {
+          navigate('/editor', {
+            state: {
+              analysisData: resultResponse.data.content.report
+            }
+          });
+        }
+        return true; // 완료됨
+      } else if (response.data.status === 'failed') {
+        setError('분석이 실패했습니다.');
+        return true; // 완료됨 (실패)
+      }
+      return false; // 아직 진행 중
+    } catch (err) {
+      console.error('상태 확인 실패:', err);
+      return false;
+    }
+  };
+
   const handleSubmit = async (input) => {
     setLoading(true);
     setError(null);
@@ -34,15 +59,39 @@ const InputBox = () => {
       } else if (/^https?:\/\//.test(input)) {
         if (/(youtube\.com|youtu\.be)/.test(input)) {
           response = await axios.post('/youtube/analyze', { youtube_url: input });
+          
+          // YouTube 분석의 경우 비동기 처리
+          if (response.data.job_id) {
+            const jobId = response.data.job_id;
+            
+            // 2초마다 상태 확인
+            const pollInterval = setInterval(async () => {
+              const isCompleted = await pollJobStatus(jobId);
+              if (isCompleted) {
+                clearInterval(pollInterval);
+                setLoading(false);
+              }
+            }, 2000);
+            
+            // 5분 후 타임아웃
+            setTimeout(() => {
+              clearInterval(pollInterval);
+              setLoading(false);
+              setError('분석 시간이 초과되었습니다. 나중에 다시 시도해주세요.');
+            }, 300000);
+            
+            return; // 여기서 함수 종료 (폴링이 계속됨)
+          }
         } else {
           response = await axios.post('/youtube/search', { query: input });
         }
       } else {
         response = await axios.post('/youtube/search', { query: input });
       }
+      
       setResult(response.data);
       
-      // YouTube 분석 결과가 있으면 에디터로 이동
+      // YouTube 분석 결과가 있으면 에디터로 이동 (기존 동기 처리용)
       if (response.data.analysis_results?.fsm_analysis?.final_output) {
         const analysisData = response.data.analysis_results.fsm_analysis;
         navigate('/editor', { 
@@ -54,7 +103,10 @@ const InputBox = () => {
     } catch (err) {
       setError(err.message || '에러 발생');
     } finally {
-      setLoading(false);
+      // YouTube 분석이 아닌 경우에만 로딩 해제
+      if (!/(youtube\.com|youtu\.be)/.test(input)) {
+        setLoading(false);
+      }
     }
   };
 
@@ -132,7 +184,7 @@ const InputBox = () => {
         </label>
         <button className={styles.arrowButton} onClick={handleInput} title="전송">→</button>
       </div>
-      {loading && <div className={styles.loading}>요청을 처리 중입니다...</div>}
+      {loading && <div className={styles.loading}>YouTube 영상을 분석 중입니다... (2-5분 소요)</div>}
       {error && <div className={styles.error}>{error}</div>}
       {result && (
         <div className={styles.result}>
@@ -143,4 +195,4 @@ const InputBox = () => {
   );
 };
 
-export default InputBox; 
+export default InputBox;
