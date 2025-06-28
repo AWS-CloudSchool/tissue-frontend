@@ -41,8 +41,9 @@
   border-radius: 6px;
   font-size: 0.98rem;
   outline: none;
-  background: #0f172a;
-  color: #fff;
+  background: #fff;
+  /*background: #0f172a;*/
+  color: #000;
   margin-bottom: 0;
 }
 .passwordBox {
