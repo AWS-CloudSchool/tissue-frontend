@@ -74,22 +74,59 @@ const YoutubeSearchPage = () => {
     }
   };
 
+  const pollJobStatus = async (jobId) => {
+    try {
+      const response = await axios.get(`/youtube/jobs/${jobId}/status`);
+      if (response.data.status === 'completed') {
+        // 완료되면 결과 가져오기
+        const resultResponse = await axios.get(`/youtube/jobs/${jobId}/result`);
+        if (resultResponse.data.content) {
+          navigate('/editor', {
+            state: {
+              analysisData: resultResponse.data.content.report
+            }
+          });
+        }
+        return true; // 완료됨
+      } else if (response.data.status === 'failed') {
+        alert('분석이 실패했습니다.');
+        return true; // 완료됨 (실패)
+      }
+      return false; // 아직 진행 중
+    } catch (err) {
+      console.error('상태 확인 실패:', err);
+      return false;
+    }
+  };
+
   const handleSummaryRequest = async (videoId) => {
     setSummaryLoading(prev => ({ ...prev, [videoId]: true }));
     try {
       const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
-      const response = await axios.post('/youtube/analysis', { youtube_url: youtubeUrl });
-      if (response.data.analysis_results?.fsm_analysis?.final_output) {
-        const analysisData = response.data.analysis_results.fsm_analysis;
-        navigate('/editor', {
-          state: {
-            analysisData: analysisData
+      const response = await axios.post('/youtube/analyze', { youtube_url: youtubeUrl });
+      
+      if (response.data.job_id) {
+        // 작업이 시작되었으면 상태를 폴링
+        const jobId = response.data.job_id;
+        
+        // 2초마다 상태 확인
+        const pollInterval = setInterval(async () => {
+          const isCompleted = await pollJobStatus(jobId);
+          if (isCompleted) {
+            clearInterval(pollInterval);
+            setSummaryLoading(prev => ({ ...prev, [videoId]: false }));
           }
-        });
+        }, 2000);
+        
+        // 5분 후 타임아웃
+        setTimeout(() => {
+          clearInterval(pollInterval);
+          setSummaryLoading(prev => ({ ...prev, [videoId]: false }));
+          alert('분석 시간이 초과되었습니다. 나중에 다시 시도해주세요.');
+        }, 300000);
       }
     } catch (err) {
       alert('요약 요청에 실패했습니다.');
-    } finally {
       setSummaryLoading(prev => ({ ...prev, [videoId]: false }));
     }
   };
@@ -162,7 +199,7 @@ const YoutubeSearchPage = () => {
               disabled={summaryLoading[video.video_id]}
             >
               <FaFileAlt />
-              {summaryLoading[video.video_id] ? '요약 중...' : '요약 요청'}
+              {summaryLoading[video.video_id] ? '분석 중...' : '요약 요청'}
             </button>
           </div>
         ))}
@@ -173,4 +210,4 @@ const YoutubeSearchPage = () => {
   );
 };
 
-export default YoutubeSearchPage; 
+export default YoutubeSearchPage;

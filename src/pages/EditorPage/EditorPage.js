@@ -10,7 +10,7 @@ import SmartVisualization from '../../components/SmartVisualization/SmartVisuali
 
 // ====== [테스트용 JSON 데이터 불러오기] ======
 // 아래 주석을 해제하면 test.json의 report 데이터로 EditorPage를 테스트할 수 있습니다.
-const testReport = require('./test.json').report;
+// const testReport = require('./test.json').report;
 
 const EditorPage = () => {
   const location = useLocation();
@@ -204,7 +204,8 @@ const EditorPage = () => {
 
   // --- parseMarkdownToBlocks ---
   const parseMarkdownToBlocks = useCallback((text) => {
-    const lines = text.split('\n');
+    const safeText = typeof text === 'string' ? text : '';
+    const lines = safeText.split('\n');
     const blocks = [];
     let blockId = 1;
     lines.forEach(line => {
@@ -230,13 +231,13 @@ const EditorPage = () => {
     const blocks = [];
     let blockId = 1;
     blocks.push({ id: `block_${blockId++}`, type: 'heading1', content: '📺 YouTube 영상 분석 결과', placeholder: '' });
-    const hasYoutubeBlock = analysisData.final_output?.sections?.some(section => section.type === 'youtube');
-    if (analysisData.final_output?.youtube_url && !hasYoutubeBlock) {
-      blocks.push({ id: `block_${blockId++}`, type: 'youtube', content: analysisData.final_output.youtube_url, placeholder: '' });
+    const hasYoutubeBlock = analysisData.report?.sections?.some(section => section.type === 'youtube');
+    if (analysisData.report?.youtube_url && !hasYoutubeBlock) {
+      blocks.push({ id: `block_${blockId++}`, type: 'youtube', content: analysisData.report.youtube_url, placeholder: '' });
     }
     blocks.push({ id: `block_${blockId++}`, type: 'heading2', content: '📋 영상 요약', placeholder: '' });
-    if (analysisData.final_output?.sections) {
-      analysisData.final_output.sections.forEach(section => {
+    if (analysisData.report?.sections) {
+      analysisData.report.sections.forEach(section => {
         const parsedBlocks = parseMarkdownToBlocks(section.content);
         blocks.push(...parsedBlocks.map(block => ({ ...block, id: `block_${blockId++}` })));
       });
@@ -280,7 +281,7 @@ const EditorPage = () => {
     }
     // ====== [테스트용 JSON 데이터 적용] ======
     // 아래 주석을 해제하면 test.json의 report 데이터로 EditorPage를 테스트할 수 있습니다.
-      setReport(testReport);
+    // setReport(testReport);
     return () => {
       document.removeEventListener('selectionchange', handleSelection);
     };
