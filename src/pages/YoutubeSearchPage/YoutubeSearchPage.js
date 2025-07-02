@@ -59,7 +59,7 @@ const YoutubeSearchPage = () => {
     setError(null);
     setVideos([]);
     try {
-      const res = await axios.post('/youtube/search', { query: q, max_results: 10 });
+      const res = await axios.post('/search/youtube', { query: q, max_results: 10 });
       setVideos(res.data.videos || []);
     } catch (err) {
       setError('검색 실패: ' + (err.response?.data?.detail || err.message));
@@ -76,14 +76,16 @@ const YoutubeSearchPage = () => {
 
   const pollJobStatus = async (jobId) => {
     try {
-      const response = await axios.get(`/youtube/jobs/${jobId}/status`);
+      const response = await axios.get(`/analyze/jobs/${jobId}/status`);
       if (response.data.status === 'completed') {
         // 완료되면 결과 가져오기
-        const resultResponse = await axios.get(`/youtube/jobs/${jobId}/result`);
+        const resultResponse = await axios.get(`/analyze/jobs/${jobId}/result`);
         if (resultResponse.data.content) {
+          // report 객체가 이미 있으면 그대로, 아니면 감싸서 전달
+          const report = resultResponse.data.content.report || resultResponse.data.content;
           navigate('/editor', {
             state: {
-              analysisData: resultResponse.data.content.report
+              analysisData: { report }
             }
           });
         }
@@ -103,7 +105,7 @@ const YoutubeSearchPage = () => {
     setSummaryLoading(prev => ({ ...prev, [videoId]: true }));
     try {
       const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
-      const response = await axios.post('/youtube/analyze', { youtube_url: youtubeUrl });
+      const response = await axios.post('/analyze/youtube', { youtube_url: youtubeUrl });
       
       if (response.data.job_id) {
         // 작업이 시작되었으면 상태를 폴링
@@ -118,12 +120,13 @@ const YoutubeSearchPage = () => {
           }
         }, 2000);
         
-        // 5분 후 타임아웃
+        /*
         setTimeout(() => {
           clearInterval(pollInterval);
           setSummaryLoading(prev => ({ ...prev, [videoId]: false }));
-          alert('분석 시간이 초과되었습니다. 나중에 다시 시도해주세요.');
+          alert('분석 시간이 초과되었습니다. 나중에 다시 시도해 주세요.');
         }, 300000);
+        */
       }
     } catch (err) {
       alert('요약 요청에 실패했습니다.');

@@ -24,7 +24,7 @@ const Dashboard = () => {
     let interval;
     const fetchJobs = async () => {
       try {
-        const res = await axios.get('/youtube/jobs');
+        const res = await axios.get('/analyze/jobs');
         if (res.data && Array.isArray(res.data.jobs)) {
           const processing = res.data.jobs.filter(j => j.status === 'processing');
           setProcessingJobs(processing);

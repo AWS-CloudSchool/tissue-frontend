@@ -21,14 +21,16 @@ const InputBox = () => {
 
   const pollJobStatus = async (jobId) => {
     try {
-      const response = await axios.get(`/youtube/jobs/${jobId}/status`);
+      const response = await axios.get(`/analyze/jobs/${jobId}/status`);
       if (response.data.status === 'completed') {
         // 완료되면 결과 가져오기
-        const resultResponse = await axios.get(`/youtube/jobs/${jobId}/result`);
+        const resultResponse = await axios.get(`/analyze/jobs/${jobId}/result`);
         if (resultResponse.data.content) {
+          // report 객체가 이미 있으면 그대로, 아니면 감싸서 전달
+          const report = resultResponse.data.content.report || resultResponse.data.content;
           navigate('/editor', {
             state: {
-              analysisData: resultResponse.data.content.report
+              analysisData: { report }
             }
           });
         }
@@ -53,12 +55,12 @@ const InputBox = () => {
       if (input instanceof File) {
         const formData = new FormData();
         formData.append('file', input);
-        response = await axios.post('/analysis/document', formData, {
+        response = await axios.post('/analyze/document', formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else if (/^https?:\/\//.test(input)) {
         if (/(youtube\.com|youtu\.be)/.test(input)) {
-          response = await axios.post('/youtube/analyze', { youtube_url: input });
+          response = await axios.post('/analyze/youtube', { youtube_url: input });
           
           // YouTube 분석의 경우 비동기 처리
           if (response.data.job_id) {
@@ -74,29 +76,31 @@ const InputBox = () => {
             }, 2000);
             
             // 5분 후 타임아웃
+            /*
             setTimeout(() => {
               clearInterval(pollInterval);
               setLoading(false);
-              setError('분석 시간이 초과되었습니다. 나중에 다시 시도해주세요.');
+              setError('분석 시간이 초과되었습니다. 나중에 다시 시도해 주세요.');
             }, 300000);
+            */
             
             return; // 여기서 함수 종료 (폴링이 계속됨)
           }
         } else {
-          response = await axios.post('/youtube/search', { query: input });
+          response = await axios.post('/search/youtube', { query: input });
         }
       } else {
-        response = await axios.post('/youtube/search', { query: input });
+        response = await axios.post('/search/youtube', { query: input });
       }
       
       setResult(response.data);
       
       // YouTube 분석 결과가 있으면 에디터로 이동 (기존 동기 처리용)
       if (response.data.analysis_results?.fsm_analysis?.final_output) {
-        const analysisData = response.data.analysis_results.fsm_analysis;
+        const report = response.data.analysis_results.fsm_analysis;
         navigate('/editor', { 
           state: { 
-            analysisData: analysisData
+            analysisData: { report }
           } 
         });
       }

@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './BedrockChat.module.css';
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
+import { useLocation } from 'react-router-dom';
 
-const BedrockChat = ({ s3Key, onClose }) => {
+const BedrockChat = ({ userId, jobId, onClose }) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [kbStatus, setKbStatus] = useState('CREATING');
   const [kbId, setKbId] = useState(null);
   const messagesEndRef = useRef(null);
+  const location = useLocation();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -19,15 +22,17 @@ const BedrockChat = ({ s3Key, onClose }) => {
   }, [messages]);
 
   useEffect(() => {
-    if (s3Key) {
-      createKnowledgeBase();
-    }
-  }, [s3Key]);
+    console.log('useEffect 실행', userId, jobId);
+    console.log('jobId:', jobId, 'location.state:', location.state, 'report:', location.report);
+    if (userId && jobId) createKnowledgeBase();
+  }, [userId, jobId]);
 
   const createKnowledgeBase = async () => {
+    console.log('createKnowledgeBase 호출됨', userId, jobId);
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/bedrock/create-kb`, {
-        s3_key: s3Key
+      const response = await axios.post('/api/sync-kb', {
+        user_id: userId,
+        job_id: jobId
       });
       setKbId(response.data.kb_id);
       setKbStatus(response.data.status);
@@ -42,7 +47,7 @@ const BedrockChat = ({ s3Key, onClose }) => {
   const pollKbStatus = async (kbId) => {
     const pollInterval = setInterval(async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/bedrock/kb-status/${kbId}`);
+        const response = await axios.get(`/api/kb-status/${kbId}`);
         const status = response.data.status;
         setKbStatus(status);
         if (status === 'READY') {
@@ -78,15 +83,21 @@ const BedrockChat = ({ s3Key, onClose }) => {
     setInputMessage('');
     setIsLoading(true);
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/bedrock/chat`, {
+      const response = await axios.post(`/api/chat`, {
         question: inputMessage,
         kb_id: kbId
       });
       if (response.data.success) {
+        const answerText = response.data.answer;
+        const sourceType = response.data.source_type; // "KB" 또는 "FALLBACK"
+        const docsFound = response.data.documents_found;
+        // const scores = response.data.relevance_scores; // 필요시 활용
+        // 답변에 소스 정보 추가
+        const fullAnswer = `${answerText}\n\n📊 소스: ${sourceType === 'KB' ? 'Knowledge Base' : 'AI 일반 지식'} | 문서: ${docsFound}개`;
         setMessages(prev => [...prev, {
           id: Date.now() + 1,
           role: 'assistant',
-          content: response.data.answer
+          content: fullAnswer
         }]);
       } else {
         setMessages(prev => [...prev, {

@@ -1,20 +1,22 @@
-.smart-visualization {
+.smartVisualization {
   margin: 30px 0;
-  padding: 20px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 12px;
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.2);
+  padding: 32px 28px;
+  background: rgba(30, 41, 59, 0.85); /* 어두운 반투명 카드 */
+  border-radius: 18px;
+  box-shadow: 0 6px 32px 0 rgba(0,0,0,0.12), 0 2px 8px 0 rgba(0,0,0,0.08);
   color: white;
+  backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255,255,255,0.12);
 }
 
-.visualization-header {
+.visualizationHeader {
   margin-bottom: 20px;
   border-bottom: 1px solid rgba(255,255,255,0.2);
   padding-bottom: 10px;
+  background: transparent;
 }
 
-.visualization-header h3 {
+.visualizationHeader h3 {
   font-size: 18px;
   margin: 0;
   display: flex;
@@ -23,7 +25,7 @@
   color: white;
 }
 
-.purpose-badge {
+.purposeBadge {
   font-size: 12px;
   padding: 3px 8px;
   border-radius: 12px;
@@ -32,142 +34,139 @@
   color: white;
 }
 
-.visualization-content {
+.visualizationContent {
   margin: 20px 0;
   min-height: 200px;
 }
 
-.chart-container {
+.chartContainer {
   height: 400px;
   width: 100%;
-  background: rgba(255,255,255,0.05);
-  border-radius: 8px;
-  padding: 10px;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 /* Network 시각화 스타일 */
-.network-container {
+.networkContainer {
   width: 100%;
   height: 400px;
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 8px;
-  overflow: hidden;
-  background: rgba(255,255,255,0.05);
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
-.vis-network {
+.visNetwork {
   width: 100%;
   height: 100%;
 }
 
 /* Flow 시각화 스타일 */
-.flow-container {
+.flowContainer {
   width: 100%;
   height: 400px;
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 8px;
-  overflow: hidden;
-  background: rgba(255,255,255,0.05);
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 /* D3 시각화 스타일 */
-.d3-container {
+.d3Container {
   width: 100%;
   min-height: 400px;
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 8px;
-  overflow: hidden;
-  background: rgba(255,255,255,0.05);
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
-.d3-visualization {
+.d3Visualization {
   width: 100%;
   height: 100%;
 }
 
-.d3-visualization svg {
+.d3Visualization svg {
   width: 100%;
   height: 100%;
 }
 
-.table-container {
+.tableContainer {
   width: 100%;
   overflow-x: auto;
   margin: 20px 0;
 }
 
-.data-table {
+.dataTable {
   width: 100%;
   border-collapse: collapse;
   border: 1px solid rgba(255,255,255,0.2);
   background: rgba(255,255,255,0.05);
 }
 
-.data-table th, .data-table td {
+.dataTable th, .dataTable td {
   padding: 12px 15px;
   text-align: left;
   border-bottom: 1px solid rgba(255,255,255,0.1);
   color: white;
 }
 
-.data-table th {
+.dataTable th {
   background-color: rgba(255,255,255,0.1);
   font-weight: 600;
 }
 
-.data-table tr:nth-child(even) {
+.dataTable tr:nth-child(even) {
   background-color: rgba(255,255,255,0.05);
 }
 
-.data-table tr:hover {
+.dataTable tr:hover {
   background-color: rgba(255,255,255,0.1);
 }
 
-.data-table .highlighted {
+.dataTable .highlighted {
   background-color: rgba(59, 130, 246, 0.3);
 }
 
-.visualization-insight {
+.visualizationInsight {
   margin-top: 20px;
   padding: 15px;
-  background: rgba(59, 130, 246, 0.1);
+  background: transparent;
   border-left: 4px solid #3b82f6;
   border-radius: 4px;
 }
 
-.visualization-insight h4 {
+.visualizationInsight h4 {
   margin: 0 0 10px 0;
   font-size: 16px;
   color: #60a5fa;
 }
 
-.visualization-insight p {
+.visualizationInsight p {
   margin: 0;
   line-height: 1.6;
   color: white;
 }
 
-.visualization-benefit {
+.visualizationBenefit {
   margin-top: 15px;
   padding: 15px;
-  background: rgba(16, 185, 129, 0.1);
+  background: transparent;
   border-left: 4px solid #10b981;
   border-radius: 4px;
 }
 
-.visualization-benefit h4 {
+.visualizationBenefit h4 {
   margin: 0 0 10px 0;
   font-size: 16px;
   color: #34d399;
 }
 
-.visualization-benefit p {
+.visualizationBenefit p {
   margin: 0;
   line-height: 1.6;
   color: white;
 }
 
-.visualization-error {
+.visualizationError {
   padding: 15px;
   background: rgba(239, 68, 68, 0.1);
   border-left: 4px solid #ef4444;
@@ -175,19 +174,19 @@
   margin: 20px 0;
 }
 
-.visualization-error p {
+.visualizationError p {
   margin: 0;
   color: #fca5a5;
 }
 
 /* 목적별 배지 색상 */
-.purpose-overview { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
-.purpose-detail { background: rgba(67, 56, 202, 0.2); color: #a5b4fc; }
-.purpose-comparison { background: rgba(134, 25, 143, 0.2); color: #f0abfc; }
-.purpose-process { background: rgba(6, 95, 70, 0.2); color: #6ee7b7; }
-.purpose-data { background: rgba(154, 52, 18, 0.2); color: #fdba74; }
-.purpose-timeline { background: rgba(153, 27, 27, 0.2); color: #fca5a5; }
-.purpose-structure { background: rgba(31, 41, 55, 0.2); color: #d1d5db; }
+.purposeOverview { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+.purposeDetail { background: rgba(67, 56, 202, 0.2); color: #a5b4fc; }
+.purposeComparison { background: rgba(134, 25, 143, 0.2); color: #f0abfc; }
+.purposeProcess { background: rgba(6, 95, 70, 0.2); color: #6ee7b7; }
+.purposeData { background: rgba(154, 52, 18, 0.2); color: #fdba74; }
+.purposeTimeline { background: rgba(153, 27, 27, 0.2); color: #fca5a5; }
+.purposeStructure { background: rgba(31, 41, 55, 0.2); color: #d1d5db; }
 
 .visualizationContent, .chartContainer, .networkContainer, .flowContainer, .d3Container {
   background: #fff;

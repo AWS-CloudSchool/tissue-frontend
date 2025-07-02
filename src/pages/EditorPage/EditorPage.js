@@ -7,10 +7,39 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import styles from './EditorPage.module.css';
 import SmartVisualization from '../../components/SmartVisualization/SmartVisualization';
+import AnalysisStatus from '../../components/AnalysisStatus/AnalysisStatus';
+import BedrockChat from '../../components/BedrockChat/BedrockChat';
+import styled from 'styled-components';
+import { jwtDecode } from 'jwt-decode';
 
 // ====== [테스트용 JSON 데이터 불러오기] ======
 // 아래 주석을 해제하면 test.json의 report 데이터로 EditorPage를 테스트할 수 있습니다.
 // const testReport = require('./test.json').report;
+
+// Styled floating button for chat
+const ChatbotButton = styled.button`
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  z-index: 1000;
+  border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  background: ${colors.primary};
+  color: ${colors.white};
+  border: 2px solid ${colors.accent};
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  font-size: 2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, box-shadow 0.2s;
+  &:hover {
+    background: #222;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+  }
+`;
 
 const EditorPage = () => {
   const location = useLocation();
@@ -25,6 +54,7 @@ const EditorPage = () => {
   const [selectionInfo, setSelectionInfo] = useState({ blockId: null, range: null });
   const editorRefs = useRef({});
   const isComposing = useRef(false);
+  const [showChat, setShowChat] = useState(false);
 
   // detectMarkdownAndConvert, updateBlockType, updateBlockContent, addNewBlock, deleteBlock, handleKeyDown, handleInput, handleSelection, applyStyleToSelection, toggleCheckbox, parseInlineMarkdown, parseMarkdownToBlocks, convertAnalysisToBlocks, blocksToJson, handleSave 등 FixedNotionEditor의 모든 함수 구현
 
@@ -327,11 +357,34 @@ const EditorPage = () => {
     }
   };
 
+  // userId 추출
+  let userId = null;
+  const idToken = localStorage.getItem('id_token');
+  if (idToken) {
+    try {
+      const decoded = jwtDecode(idToken);
+      userId = decoded['cognito:username'] || decoded.email;
+    } catch (e) {
+      userId = null;
+    }
+  }
+  // jobId 추출 (실제 데이터 구조에 맞게 수정)
+  const jobId =
+    location.state?.analysisData?.report?.process_info?.job_id ||
+    location.state?.analysisData?.job_id ||
+    report?.process_info?.job_id;
+
   return (
     <div className={styles.container}>
       <AuroraBackground />
       <TopBar />
-      <div className={styles.main}>
+      <div
+        className={styles.main}
+        style={{
+          transition: 'margin-right 0.3s cubic-bezier(0.4,0,0.2,1)',
+          marginRight: showChat ? 400 : 0
+        }}
+      >
         {showToolbar && (
           <div
             className={styles.toolbar}
@@ -378,6 +431,30 @@ const EditorPage = () => {
           </div>
         </div>
       </div>
+      <div
+        className={styles.chatDrawer}
+        style={{
+          width: 400,
+          position: 'fixed',
+          top: 0,
+          right: showChat ? 0 : -400,
+          height: '100%',
+          background: 'rgba(30,32,40,0.98)',
+          boxShadow: '-4px 0 24px rgba(0,0,0,0.15)',
+          zIndex: 1200,
+          transition: 'right 0.3s cubic-bezier(0.4,0,0.2,1)'
+        }}
+      >
+        {showChat && (
+          <BedrockChat userId={userId} jobId={jobId} onClose={() => setShowChat(false)} />
+        )}
+      </div>
+      <ChatbotButton
+        onClick={() => setShowChat(true)}
+        aria-label="챗봇 열기"
+      >
+        <span role="img" aria-label="chatbot">🤖</span>
+      </ChatbotButton>
       <Footer />
     </div>
   );
