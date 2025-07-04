@@ -1,87 +1,181 @@
 .smartVisualization {
-  margin: 30px 0;
-  padding: 32px 28px;
-  background: rgba(30, 41, 59, 0.85); /* 어두운 반투명 카드 */
-  border-radius: 18px;
-  box-shadow: 0 6px 32px 0 rgba(0,0,0,0.12), 0 2px 8px 0 rgba(0,0,0,0.08);
+  margin: 40px 0;
+  padding: 40px 32px;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border-radius: 24px;
+  box-shadow: 
+    0 20px 60px -12px rgba(0, 0, 0, 0.25),
+    0 8px 24px -4px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   color: white;
-  backdrop-filter: blur(8px);
-  border: 1.5px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.smartVisualization::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+}
+
+.smartVisualization:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 25px 80px -12px rgba(0, 0, 0, 0.3),
+    0 12px 32px -4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .visualizationHeader {
-  margin-bottom: 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.2);
-  padding-bottom: 10px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 20px;
   background: transparent;
+  position: relative;
+}
+
+.visualizationHeader::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 1px;
 }
 
 .visualizationHeader h3 {
-  font-size: 18px;
+  font-size: 22px;
+  font-weight: 700;
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.025em;
 }
 
 .purposeBadge {
-  font-size: 12px;
-  padding: 3px 8px;
-  border-radius: 12px;
-  margin-left: 10px;
-  background: rgba(255,255,255,0.2);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  margin-left: 12px;
+  background: rgba(255, 255, 255, 0.15);
   color: white;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+}
+
+.purposeBadge:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.visualizationMeta {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.metaTag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: rgba(102, 126, 234, 0.15);
+  color: #a5b4fc;
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .visualizationContent {
-  margin: 20px 0;
-  min-height: 200px;
+  margin: 24px 0;
+  min-height: 300px;
+  position: relative;
 }
 
 .chartContainer {
-  height: 400px;
+  height: 450px;
   width: 100%;
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 16px !important;
+  padding: 24px !important;
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(10px);
 }
 
 /* Network 시각화 스타일 */
 .networkContainer {
   width: 100%;
-  height: 400px;
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
+  height: 450px;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 16px !important;
+  padding: 24px !important;
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(10px);
 }
 
 .visNetwork {
   width: 100%;
   height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 /* Flow 시각화 스타일 */
 .flowContainer {
   width: 100%;
-  height: 400px;
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
+  height: 450px;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 16px !important;
+  padding: 24px !important;
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(10px);
 }
 
 /* D3 시각화 스타일 */
 .d3Container {
   width: 100%;
-  min-height: 400px;
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
+  min-height: 450px;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 16px !important;
+  padding: 24px !important;
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(10px);
 }
 
 .d3Visualization {
   width: 100%;
   height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .d3Visualization svg {
@@ -92,106 +186,286 @@
 .tableContainer {
   width: 100%;
   overflow-x: auto;
-  margin: 20px 0;
+  margin: 24px 0;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
 }
 
 .dataTable {
   width: 100%;
-  border-collapse: collapse;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: rgba(255,255,255,0.05);
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .dataTable th, .dataTable td {
-  padding: 12px 15px;
+  padding: 16px 20px;
   text-align: left;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   color: white;
+  font-weight: 500;
 }
 
 .dataTable th {
-  background-color: rgba(255,255,255,0.1);
-  font-weight: 600;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #e2e8f0;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.3);
 }
 
 .dataTable tr:nth-child(even) {
-  background-color: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .dataTable tr:hover {
-  background-color: rgba(255,255,255,0.1);
+  background: rgba(102, 126, 234, 0.1);
+  transform: scale(1.01);
+  transition: all 0.2s ease;
 }
 
 .dataTable .highlighted {
-  background-color: rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(99, 102, 241, 0.2));
+  border-left: 4px solid #3b82f6;
 }
 
 .visualizationInsight {
-  margin-top: 20px;
-  padding: 15px;
-  background: transparent;
+  margin-top: 32px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.1));
   border-left: 4px solid #3b82f6;
-  border-radius: 4px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .visualizationInsight h4 {
-  margin: 0 0 10px 0;
-  font-size: 16px;
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 700;
   color: #60a5fa;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .visualizationInsight p {
   margin: 0;
-  line-height: 1.6;
-  color: white;
+  line-height: 1.7;
+  color: #e2e8f0;
+  font-size: 15px;
 }
 
 .visualizationBenefit {
-  margin-top: 15px;
-  padding: 15px;
-  background: transparent;
+  margin-top: 20px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
   border-left: 4px solid #10b981;
-  border-radius: 4px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .visualizationBenefit h4 {
-  margin: 0 0 10px 0;
-  font-size: 16px;
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 700;
   color: #34d399;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .visualizationBenefit p {
   margin: 0;
-  line-height: 1.6;
-  color: white;
+  line-height: 1.7;
+  color: #e2e8f0;
+  font-size: 15px;
 }
 
 .visualizationError {
-  padding: 15px;
-  background: rgba(239, 68, 68, 0.1);
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
   border-left: 4px solid #ef4444;
-  border-radius: 4px;
-  margin: 20px 0;
+  border-radius: 12px;
+  margin: 24px 0;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .visualizationError p {
   margin: 0;
   color: #fca5a5;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* 목적별 배지 색상 */
-.purposeOverview { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
-.purposeDetail { background: rgba(67, 56, 202, 0.2); color: #a5b4fc; }
-.purposeComparison { background: rgba(134, 25, 143, 0.2); color: #f0abfc; }
-.purposeProcess { background: rgba(6, 95, 70, 0.2); color: #6ee7b7; }
-.purposeData { background: rgba(154, 52, 18, 0.2); color: #fdba74; }
-.purposeTimeline { background: rgba(153, 27, 27, 0.2); color: #fca5a5; }
-.purposeStructure { background: rgba(31, 41, 55, 0.2); color: #d1d5db; }
+.visualizationQuality {
+  margin-top: 20px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(139, 92, 246, 0.1));
+  border-left: 4px solid #a855f7;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
 
-.visualizationContent, .chartContainer, .networkContainer, .flowContainer, .d3Container {
-  background: #fff;
+.visualizationQuality h4 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #c084fc;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.visualizationQuality p {
+  margin: 0;
+  line-height: 1.7;
+  color: #e2e8f0;
+  font-size: 15px;
+}
+
+.dataSource {
+  margin-top: 20px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.1), rgba(245, 158, 11, 0.1));
+  border-left: 4px solid #d97706;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(217, 119, 6, 0.2);
+}
+
+.dataSource h4 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fbbf24;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dataSource p {
+  margin: 0;
+  line-height: 1.7;
+  color: #e2e8f0;
+  font-size: 15px;
+}
+
+/* 목적별 배지 색상 - 개선된 그라데이션 */
+.purposeOverview { 
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(99, 102, 241, 0.2)); 
+  color: #93c5fd; 
+  border-color: rgba(59, 130, 246, 0.3);
+}
+.purposeDetail { 
+  background: linear-gradient(135deg, rgba(67, 56, 202, 0.2), rgba(139, 92, 246, 0.2)); 
+  color: #a5b4fc; 
+  border-color: rgba(67, 56, 202, 0.3);
+}
+.purposeComparison { 
+  background: linear-gradient(135deg, rgba(134, 25, 143, 0.2), rgba(168, 85, 247, 0.2)); 
+  color: #f0abfc; 
+  border-color: rgba(134, 25, 143, 0.3);
+}
+.purposeProcess { 
+  background: linear-gradient(135deg, rgba(6, 95, 70, 0.2), rgba(5, 150, 105, 0.2)); 
+  color: #6ee7b7; 
+  border-color: rgba(6, 95, 70, 0.3);
+}
+.purposeData { 
+  background: linear-gradient(135deg, rgba(154, 52, 18, 0.2), rgba(217, 119, 6, 0.2)); 
+  color: #fdba74; 
+  border-color: rgba(154, 52, 18, 0.3);
+}
+.purposeTimeline { 
+  background: linear-gradient(135deg, rgba(153, 27, 27, 0.2), rgba(220, 38, 38, 0.2)); 
+  color: #fca5a5; 
+  border-color: rgba(153, 27, 27, 0.3);
+}
+.purposeStructure { 
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.2), rgba(55, 65, 81, 0.2)); 
+  color: #d1d5db; 
+  border-color: rgba(31, 41, 55, 0.3);
+}
+
+/* 고급 시각화 플레이스홀더 */
+.advancedVisualizationPlaceholder {
+  padding: 32px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
   border-radius: 16px;
-  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07), 0 1.5px 4px 0 rgba(0,0,0,0.04);
-  padding: 32px 24px;
-  margin: 24px 0;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  text-align: center;
+}
+
+.advancedVisualizationPlaceholder h4 {
+  color: #667eea;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.advancedVisualizationPlaceholder p {
+  color: #e2e8f0;
+  margin-bottom: 20px;
+}
+
+.advancedVisualizationPlaceholder pre {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 12px;
+  color: #cbd5e1;
+  text-align: left;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .smartVisualization {
+    margin: 20px 0;
+    padding: 24px 20px;
+    border-radius: 16px;
+  }
+  
+  .visualizationHeader h3 {
+    font-size: 18px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .purposeBadge {
+    margin-left: 0;
+  }
+  
+  .chartContainer,
+  .networkContainer,
+  .flowContainer,
+  .d3Container {
+    height: 350px;
+    padding: 16px;
+  }
+  
+  .dataTable th, 
+  .dataTable td {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
 } 

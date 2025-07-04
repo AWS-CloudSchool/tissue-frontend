@@ -11,6 +11,7 @@ import AnalysisStatus from '../../components/AnalysisStatus/AnalysisStatus';
 import BedrockChat from '../../components/BedrockChat/BedrockChat';
 import styled from 'styled-components';
 import { jwtDecode } from 'jwt-decode';
+import { getAnalysisResult } from '../../api/analyze';
 
 // ====== [테스트용 JSON 데이터 불러오기] ======
 // 아래 주석을 해제하면 test.json의 report 데이터로 EditorPage를 테스트할 수 있습니다.
@@ -55,6 +56,40 @@ const EditorPage = () => {
   const editorRefs = useRef({});
   const isComposing = useRef(false);
   const [showChat, setShowChat] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // 분석 결과 로딩
+  useEffect(() => {
+    const loadAnalysisData = async () => {
+      const analysisData = location.state?.analysisData;
+      
+      if (analysisData?.jobId) {
+        // jobId가 있으면 백엔드에서 결과 가져오기
+        setLoading(true);
+        try {
+          const result = await getAnalysisResult(analysisData.jobId);
+          if (result.content?.report) {
+            setReport(result.content.report);
+            const newBlocks = convertAnalysisToBlocks(result.content.report);
+            setBlocks(newBlocks);
+          }
+        } catch (err) {
+          console.error('분석 결과 로딩 실패:', err);
+          setError('분석 결과를 불러오는데 실패했습니다.');
+        } finally {
+          setLoading(false);
+        }
+      } else if (analysisData?.report) {
+        // report가 직접 전달된 경우
+        setReport(analysisData.report);
+        const newBlocks = convertAnalysisToBlocks(analysisData.report);
+        setBlocks(newBlocks);
+      }
+    };
+
+    loadAnalysisData();
+  }, [location.state]);
 
   // detectMarkdownAndConvert, updateBlockType, updateBlockContent, addNewBlock, deleteBlock, handleKeyDown, handleInput, handleSelection, applyStyleToSelection, toggleCheckbox, parseInlineMarkdown, parseMarkdownToBlocks, convertAnalysisToBlocks, blocksToJson, handleSave 등 FixedNotionEditor의 모든 함수 구현
 
@@ -410,15 +445,19 @@ const EditorPage = () => {
           </div>
           <div className={styles.editorBody}>
             {report && Array.isArray(report.sections) ? (
-              report.sections.map((section, idx) => (
-                section.type === 'visualization' ? (
-                  <SmartVisualization key={section.id || idx} section={section} />
-                ) : (
-                  <div key={section.id || idx} className={styles.block}>
-                    {renderBlock(section)}
-                  </div>
-                )
-              ))
+              report.sections.map((section, idx) => {
+                // 시각화 섹션 디버깅
+                if (section.type === 'visualization') {
+                  console.log('🔍 시각화 섹션 발견:', section);
+                  return <SmartVisualization key={section.id || idx} section={section} />;
+                } else {
+                  return (
+                    <div key={section.id || idx} className={styles.block}>
+                      {renderBlock(section)}
+                    </div>
+                  );
+                }
+              })
             ) : (
               <>
                 {blocks.map((block) => (

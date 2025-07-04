@@ -43,24 +43,38 @@ const SmartVisualization = ({ section }) => {
   const d3Ref = useRef(null);
   const [networkInstance, setNetworkInstance] = useState(null);
 
+  // 디버깅 로그
+  console.log('🎨 SmartVisualization 렌더링:', {
+    section,
+    data: section?.data,
+    type: section?.data?.type,
+    visualization_type: section?.visualization_type
+  });
+
   useEffect(() => {
-    if (section.data?.type === 'network' && networkRef.current) {
+    // 시각화 타입 결정
+    const vizType = section.data?.type || section.visualization_type;
+    
+    console.log('🎨 시각화 타입:', vizType, '데이터:', section.data);
+
+    if ((vizType === 'network' || vizType === 'visjs') && networkRef.current) {
       renderNetwork();
-    } else if (section.data?.type === 'd3' && d3Ref.current) {
+    } else if ((vizType === 'd3' || vizType === 'd3js' || vizType === 'timeline') && d3Ref.current) {
       renderD3Visualization();
-    } else if (section.data?.type === 'diagram') {
-      section.data.type = 'network';
+    } else if (vizType === 'diagram') {
+      // diagram을 network로 변환
       if (networkRef.current) {
         renderNetwork();
       }
     }
+    
     return () => {
       if (networkInstance) {
         networkInstance.destroy();
         setNetworkInstance(null);
       }
     };
-  }, [section.data]);
+  }, [section.data, section.visualization_type]);
 
   // vis.js Network 렌더링
   const renderNetwork = () => {
@@ -68,8 +82,15 @@ const SmartVisualization = ({ section }) => {
     try {
       setError(null);
       if (networkInstance) networkInstance.destroy();
-      let networkData = section.data?.data;
-      if (!networkData || section.data?.type === 'diagram') {
+      
+      // 다양한 데이터 구조 지원
+      let networkData = section.data?.config?.nodes ? {
+        nodes: section.data.config.nodes,
+        edges: section.data.config.edges
+      } : section.data?.data || section.data;
+      
+      if (!networkData || !networkData.nodes) {
+        console.warn('네트워크 데이터가 없어 기본 데이터 사용:', section.data);
         networkData = {
           nodes: [
             { id: 1, label: '노드 1', color: '#667eea' },
@@ -82,12 +103,16 @@ const SmartVisualization = ({ section }) => {
           ]
         };
       }
+      
+      console.log('🌐 네트워크 렌더링:', networkData);
+      
       const container = networkRef.current;
       const data = {
         nodes: new DataSet(networkData.nodes || []),
         edges: new DataSet(networkData.edges || [])
       };
-      const options = section.data.options || {
+      
+      const options = section.data?.config?.options || section.data?.options || {
         layout: {
           hierarchical: {
             enabled: true,
@@ -114,9 +139,11 @@ const SmartVisualization = ({ section }) => {
           smooth: true
         }
       };
+      
       const network = new Network(container, data, options);
       setNetworkInstance(network);
     } catch (err) {
+      console.error('네트워크 렌더링 오류:', err);
       setError(`네트워크 다이어그램 렌더링 실패: ${err.message}`);
     }
   };
@@ -196,32 +223,62 @@ const SmartVisualization = ({ section }) => {
   };
 
   const renderChart = () => {
-    const { config } = section.data;
-    if (!config) return null;
+    // 다양한 데이터 구조 지원
+    const chartData = section.data?.config || section.data;
+    if (!chartData) {
+      console.warn('차트 데이터가 없습니다:', section.data);
+      return <div>차트 데이터가 없습니다</div>;
+    }
+
     const chartOptions = {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
         legend: { position: 'top' },
-        title: { display: true, text: section.title }
+        title: { display: true, text: section.title || '차트' }
       },
-      ...config.options
+      ...chartData.options
     };
-    const chartProps = { data: config.data, options: chartOptions, ref: chartRef };
-    switch (config.type) {
+
+    const chartProps = { 
+      data: chartData.data, 
+      options: chartOptions, 
+      ref: chartRef 
+    };
+
+    const chartType = chartData.type || chartData.chart_type || 'bar';
+    
+    console.log('📊 차트 렌더링:', { chartType, chartData, chartProps });
+
+    switch (chartType) {
       case 'bar': return <Bar {...chartProps} />;
       case 'line': return <Line {...chartProps} />;
       case 'pie': return <Pie {...chartProps} />;
       case 'doughnut': return <Doughnut {...chartProps} />;
       case 'radar': return <Radar {...chartProps} />;
       case 'scatter': return <Scatter {...chartProps} />;
-      default: return <div>지원하지 않는 차트 타입: {config.type}</div>;
+      default: 
+        console.warn('지원하지 않는 차트 타입:', chartType);
+        return <div>지원하지 않는 차트 타입: {chartType}</div>;
     }
   };
 
   const renderTable = () => {
-    const { headers, rows, styling } = section.data;
-    if (!headers || !rows) return null;
+    // 다양한 데이터 구조 지원
+    const tableData = section.data?.data || section.data;
+    if (!tableData) {
+      console.warn('테이블 데이터가 없습니다:', section.data);
+      return <div>테이블 데이터가 없습니다</div>;
+    }
+
+    const { headers, rows, styling } = tableData;
+    if (!headers || !rows) {
+      console.warn('테이블 헤더 또는 행이 없습니다:', tableData);
+      return <div>테이블 구조가 올바르지 않습니다</div>;
+    }
+
+    console.log('📋 테이블 렌더링:', { headers, rows, styling });
+
     return (
       <div className={styles.tableContainer}>
         <table className={styles.dataTable + (styling?.sortable ? ' ' + styles.sortable : '')}>
@@ -258,13 +315,34 @@ const SmartVisualization = ({ section }) => {
 
   const getPurposeIcon = (purpose) => {
     const icons = {
-      overview: '🌐', detail: '🔍', comparison: '⚖️', process: '🔄', data: '📊', timeline: '📅', structure: '🏗️'
+      overview: '🌐', 
+      detail: '🔍', 
+      comparison: '⚖️', 
+      process: '🔄', 
+      data: '📊', 
+      timeline: '📅', 
+      structure: '🏗️',
+      network: '🌐',
+      flow: '🔄',
+      chart: '📈',
+      table: '📋'
     };
     return icons[purpose] || '📊';
   };
+  
   const getPurposeLabel = (purpose) => {
     const labels = {
-      overview: '전체 개요', detail: '세부 분석', comparison: '비교', process: '프로세스', data: '데이터', timeline: '타임라인', structure: '구조'
+      overview: '전체 개요', 
+      detail: '세부 분석', 
+      comparison: '비교 분석', 
+      process: '프로세스', 
+      data: '데이터 분석', 
+      timeline: '타임라인', 
+      structure: '구조 분석',
+      network: '관계도',
+      flow: '흐름도',
+      chart: '차트',
+      table: '테이블'
     };
     return labels[purpose] || purpose;
   };
@@ -273,33 +351,68 @@ const SmartVisualization = ({ section }) => {
     <div className={styles.smartVisualization}>
       <div className={styles.visualizationHeader}>
         <h3>
-          {getPurposeIcon(section.purpose)} {section.title}
+          {getPurposeIcon(section.purpose)} {section.title || '시각화'}
           {section.purpose && (
             <span className={styles['purposeBadge'] + ' ' + styles['purpose' + (section.purpose.charAt(0).toUpperCase() + section.purpose.slice(1))]}>
               {getPurposeLabel(section.purpose)}
             </span>
           )}
         </h3>
+        
+        {/* 시각화 메타데이터 표시 */}
+        <div className={styles.visualizationMeta}>
+          {section.data?.type && (
+            <span className={styles.metaTag}>
+              📊 {section.data.type.toUpperCase()}
+            </span>
+          )}
+          {section.data?.chart_type && (
+            <span className={styles.metaTag}>
+              📈 {section.data.chart_type}
+            </span>
+          )}
+          {section.data?.network_type && (
+            <span className={styles.metaTag}>
+              🌐 {section.data.network_type}
+            </span>
+          )}
+          {section.data?.flow_type && (
+            <span className={styles.metaTag}>
+              🔄 {section.data.flow_type}
+            </span>
+          )}
+        </div>
+        
+        {error && (
+          <div className={styles.visualizationError}>
+            <p>⚠️ {error}</p>
+          </div>
+        )}
       </div>
       <div className={styles.visualizationContent}>
-        {section.data?.type === 'chart' && (
+        {/* Chart.js 차트 */}
+        {(section.data?.type === 'chart' || section.data?.type === 'chartjs' || section.data?.type === 'plotly') && (
           <div className={styles.chartContainer}>{renderChart()}</div>
         )}
-        {(section.data?.type === 'network' || section.data?.type === 'diagram') && (
+        
+        {/* Vis.js 네트워크 */}
+        {(section.data?.type === 'network' || section.data?.type === 'diagram' || section.data?.type === 'visjs') && (
           <div className={styles.networkContainer}>
             <div ref={networkRef} className={styles.visNetwork} style={{ height: '400px', width: '100%' }} />
             {error && <div className={styles.visualizationError}><p>⚠️ {error}</p></div>}
           </div>
         )}
-        {section.data?.type === 'flow' && (
+        
+        {/* React Flow */}
+        {(section.data?.type === 'flow' || section.data?.type === 'reactflow') && (
           <div className={styles.flowContainer} style={{ height: '400px', width: '100%' }} ref={flowRef}>
             <ReactFlow
-              nodes={section.data?.data?.nodes || [
+              nodes={section.data?.config?.nodes || section.data?.data?.nodes || [
                 { id: '1', type: 'input', position: { x: 0, y: 0 }, data: { label: '시작' } },
                 { id: '2', position: { x: 100, y: 100 }, data: { label: '과정' } },
                 { id: '3', type: 'output', position: { x: 200, y: 200 }, data: { label: '완료' } }
               ]}
-              edges={section.data?.data?.edges || [
+              edges={section.data?.config?.edges || section.data?.data?.edges || [
                 { id: 'e1-2', source: '1', target: '2', label: '연결 1' },
                 { id: 'e2-3', source: '2', target: '3', label: '연결 2' }
               ]}
@@ -312,35 +425,82 @@ const SmartVisualization = ({ section }) => {
             {error && <div className={styles.visualizationError}><p>⚠️ {error}</p></div>}
           </div>
         )}
-        {section.data?.type === 'd3' && (
+        
+        {/* D3.js 시각화 */}
+        {(section.data?.type === 'd3' || section.data?.type === 'd3js' || section.data?.type === 'timeline') && (
           <div className={styles.d3Container}>
             <div ref={d3Ref} className={styles.d3Visualization} style={{ width: '100%', minHeight: '400px' }} />
             {error && <div className={styles.visualizationError}><p>⚠️ {error}</p></div>}
           </div>
         )}
+        
+        {/* 테이블 */}
         {section.data?.type === 'table' && renderTable()}
+        
+        {/* 고급 시각화 */}
         {section.data?.type === 'advanced' && renderAdvanced()}
+        
+        {/* 데이터가 없는 경우 - 테스트 시각화 제공 */}
         {!section.data && (
           <div className={styles.visualizationError}>
-            <p>⚠️ 시각화 데이터가 없습니다</p>
-            <pre style={{ background: '#f8f9fa', padding: '10px', borderRadius: '4px', fontSize: '12px' }}>
-              섹션 전체 데이터: {JSON.stringify(section, null, 2)}
-            </pre>
+            <p>⚠️ 시각화 데이터가 없습니다 - 테스트 차트를 표시합니다</p>
+            <div className={styles.chartContainer}>
+              <Bar 
+                data={{
+                  labels: ['테스트 1', '테스트 2', '테스트 3'],
+                  datasets: [{
+                    label: '테스트 데이터',
+                    data: [12, 19, 3],
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                  }]
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: '테스트 차트' }
+                  }
+                }}
+              />
+            </div>
+            <details style={{ marginTop: '10px' }}>
+              <summary>섹션 데이터 보기</summary>
+              <pre style={{ background: '#f8f9fa', padding: '10px', borderRadius: '4px', fontSize: '12px' }}>
+                {JSON.stringify(section, null, 2)}
+              </pre>
+            </details>
           </div>
         )}
       </div>
-      {section.insight && (
-        <div className={styles.visualizationInsight}>
-          <h4>💡 핵심 인사이트</h4>
-          <p>{section.insight}</p>
-        </div>
-      )}
-      {section.user_benefit && (
-        <div className={styles.visualizationBenefit}>
-          <h4>🎯 이 시각화의 가치</h4>
-          <p>{section.user_benefit}</p>
-        </div>
-      )}
+              {section.insight && (
+          <div className={styles.visualizationInsight}>
+            <h4>💡 핵심 인사이트</h4>
+            <p>{section.insight}</p>
+          </div>
+        )}
+        {section.user_benefit && (
+          <div className={styles.visualizationBenefit}>
+            <h4>🎯 이 시각화의 가치</h4>
+            <p>{section.user_benefit}</p>
+          </div>
+        )}
+        
+        {/* 시각화 품질 정보 */}
+        {section.data?.design_notes && (
+          <div className={styles.visualizationQuality}>
+            <h4>🎨 디자인 노트</h4>
+            <p>{section.data.design_notes}</p>
+          </div>
+        )}
+        
+        {/* 데이터 소스 정보 */}
+        {section.data?.data_source && (
+          <div className={styles.dataSource}>
+            <h4>📚 데이터 소스</h4>
+            <p>{section.data.data_source}</p>
+          </div>
+        )}
     </div>
   );
 };
