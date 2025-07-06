@@ -23,7 +23,7 @@ jobs:
         run: npm install  # yarn 사용 시 'yarn'으로 변경
 
       - name: Build project
-        run: npm run build  # 'build' 명령이 ./dist 또는 ./public 생성
+        run: REACT_APP_API_BASE_URL=${{ secrets.REACT_APP_API_BASE_URL }} npm run build  # 'build' 명령이 ./dist 또는 ./public 생성
 
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@master
@@ -33,7 +33,7 @@ jobs:
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          SOURCE_DIR: ./dist  # 또는 ./public 등 빌드 결과물 경로
+          SOURCE_DIR: ./build  # 또는 ./public 등 빌드 결과물 경로
 
       - name: Invalidate CloudFront cache
         uses: chetan/invalidate-cloudfront-action@v1
