@@ -1,0 +1,241 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.18);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal {
+  box-sizing: border-box;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18);
+  padding: 36px 32px 28px 32px;
+  width: 400px;
+  min-width: 320px;
+  max-width: 90vw;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.closeBtn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #4F5FFF;
+  cursor: pointer;
+}
+.title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #181818;
+  margin-bottom: 28px;
+}
+.form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fafafa;
+  outline: none;
+  transition: border 0.18s;
+}
+.input:focus {
+  border: 1.5px solid #4F5FFF;
+  background: #fff;
+}
+.btnGroup {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  justify-content: center;
+  align-items: stretch;
+}
+.backBtn {
+  background: #f5f7fa;
+  color: #4f5fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0 18px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s;
+  min-width: 100px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.backBtn:hover {
+  background: #e6f0ff;
+}
+.backBtn .arrow {
+  margin-right: 6px;
+  font-size: 17px;
+}
+.submitBtn {
+  flex-grow: 1;
+  height: 44px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  background: #4f5fff;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.18s;
+  min-width: 120px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.submitBtn:disabled {
+  background: #bfcfff;
+  color: #fff;
+  cursor: not-allowed;
+}
+.bottomText {
+  margin-top: 18px;
+  font-size: 1rem;
+  color: #444;
+  text-align: center;
+}
+.signupBtn {
+  background: none;
+  border: none;
+  color: #4F5FFF;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 2px;
+  text-decoration: none;
+}
+.signupBtn:hover {
+  text-decoration: underline;
+}
+.pwChecks {
+  background: #ffe3ef;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px 0 rgba(255,97,177,0.08);
+  margin: 10px 0 16px 0;
+  color: #ff61b1;
+  transition: background 0.3s;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 12px;
+  padding-bottom: 8px;
+}
+.pwChecksOk {
+  background: #e6f0ff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px 0 rgba(79,95,255,0.08);
+  margin: 10px 0 16px 0;
+  color: #4f5fff;
+  transition: background 0.3s;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 12px;
+  padding-bottom: 8px;
+}
+.pwCheckWarn, .pwCheckOk {
+  min-width: 110px;
+  text-align: center;
+  margin-right: 0;
+  margin-bottom: 10px;
+  padding: 7px 0;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  box-sizing: border-box;
+  background: #fff0f7;
+  border: 1.2px solid #ffb3d8;
+  transition: background 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pwCheckWarn {
+  color: #ff61b1;
+}
+.pwCheckOk {
+  color: #b0b8c1;
+  background: #f5f7fa;
+  border: 1.2px solid #e0e6ed;
+  text-decoration: line-through;
+}
+.pwCheckTitle {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #ff61b1;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+}
+.pwCheckWarn {
+  color: #ff61b1;
+  background: #fff0f7;
+  border-radius: 8px;
+  padding: 4px 10px;
+  margin-right: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  display: inline-block;
+}
+.pwCheckOkMsg {
+  color: #4f5fff;
+  font-weight: 600;
+  font-size: 16px;
+  text-align: center;
+  width: 100%;
+  padding: 6px 0;
+  letter-spacing: -0.5px;
+}
+.pwMismatchMsg {
+  color: #ff4d6d;
+  background: #fff0f4;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  border-radius: 7px;
+  padding: 6px 12px;
+  display: inline-block;
+  letter-spacing: -0.2px;
+}
+.verifyMsg {
+  background: #e6f0ff;
+  color: #4f5fff;
+  border-radius: 10px;
+  padding: 14px 12px 10px 12px;
+  margin-bottom: 16px;
+  font-size: 15px;
+  text-align: center;
+  font-weight: 500;
+  line-height: 1.6;
+} 

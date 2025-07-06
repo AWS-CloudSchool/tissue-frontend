@@ -1,0 +1,111 @@
+.inputBoxWrapper {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 700px;
+  background: #fff;
+  border: 2px solid #4F5FFF;
+  border-radius: 22px;
+  box-shadow: 0 6px 32px 0 rgba(0,0,0,0.08);
+  padding: 28px 36px 24px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin-bottom: 32px;
+}
+
+.input {
+  box-sizing: border-box;
+  width: 100%;
+  font-size: 1.15rem;
+  padding: 22px 24px;
+  border: none;
+  border-radius: 14px;
+  outline: none;
+  background: #fafafa;
+  margin-bottom: 0;
+  transition: background 0.18s;
+}
+.input:focus {
+  background: #fff;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 0;
+}
+
+.iconBtn {
+  background: none;
+  border: none;
+  font-size: 1.35rem;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 50%;
+  transition: background 0.18s;
+}
+.iconBtn:hover {
+  background: #f3f3f3;
+}
+
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.05rem;
+  color: #888;
+}
+
+.summarizeBtn {
+  margin-top: 24px;
+  width: 100%;
+  background: #4F5FFF;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  padding: 12px 0;
+  cursor: pointer;
+  box-shadow: 0 2px 8px 0 rgba(79,95,255,0.10);
+  transition: background 0.18s, color 0.18s;
+}
+.summarizeBtn:hover {
+  background: #3A49D9;
+  color: #fff;
+}
+
+.trendingBox {
+  margin: 20px 0 8px 0;
+  padding: 18px 16px 10px 16px;
+  background: #f9fafb;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(59,130,246,0.06);
+}
+.trendingTitle {
+  font-weight: 700;
+  color: #ef4444;
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+.trendingList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.trendingItem {
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: border 0.15s, box-shadow 0.15s;
+}
+.trendingItem:hover {
+  border: 1.5px solid #3b82f6;
+  color: #2563eb;
+  box-shadow: 0 2px 8px rgba(59,130,246,0.08);
+} 

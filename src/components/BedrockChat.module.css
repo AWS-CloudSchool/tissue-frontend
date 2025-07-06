@@ -1,0 +1,220 @@
+.container {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 375px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 10px;
+  background: #fff;
+  border-radius: 18px;
+  border: none;
+  box-shadow: 0 6px 32px 0 rgba(0,0,0,0.13), 0 1.5px 4px 0 rgba(0,0,0,0.06);
+  color: #232526;
+  box-sizing: border-box;
+}
+.header {
+  padding: 10px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  height: 50px;
+  flex-shrink: 0;
+}
+.title {
+  color: #232526;
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+.messages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  max-height: calc(100% - 120px);
+  min-height: 200px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.messages::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.messages::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+.message {
+  display: flex;
+  justify-content: flex-start;
+}
+.messageUser {
+  justify-content: flex-end;
+}
+.bubble {
+  max-width: 70%;
+  padding: 9px 13px;
+  border-radius: 14px;
+  background: #f3f4f6;
+  color: #232526;
+  font-size: 0.97rem;
+  line-height: 1.45;
+  word-wrap: break-word;
+  border: 1px solid #e5e7eb;
+}
+.bubbleUser {
+  background: #e0e7ff;
+  color: #3730a3;
+  border: 1.5px solid #a5b4fc;
+  border-radius: 14px;
+  padding: 9px 13px;
+}
+.inputContainer {
+  padding: 7px 8px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  gap: 7px;
+  background: none;
+  height: 48px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+.input {
+  flex: 1;
+  background: #f3f4f6;
+  border: 1.2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 7px 12px;
+  color: #232526;
+  font-size: 0.98rem;
+  outline: none;
+  transition: border 0.18s;
+  box-sizing: border-box;
+  min-width: 0;
+  height: 34px;
+}
+.input:focus {
+  border-color: #6366f1;
+}
+.sendButton {
+  background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 0.97rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.18s;
+  box-shadow: 0 2px 8px rgba(59,130,246,0.08);
+  height: 34px;
+  min-width: 44px;
+  max-width: 70px;
+  white-space: nowrap;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sendButton:hover:not(:disabled) {
+  background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%);
+  box-shadow: 0 4px 16px rgba(59,130,246,0.13);
+}
+.sendButton:disabled {
+  background: #e5e7eb;
+  color: #bbb;
+  cursor: not-allowed;
+}
+.header .sendButton {
+  padding: 8px 16px;
+  font-size: 0.97rem;
+  border-radius: 10px;
+  flex: none;
+  width: auto;
+  min-width: unset;
+  margin-left: auto;
+}
+.headerButtons {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+}
+.headerButton {
+  background: #f3f4f6;
+  color: #6366f1;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  padding: 5px 13px;
+  font-size: 0.97rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.16s, color 0.16s, border 0.16s;
+  box-shadow: none;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.headerButton:hover {
+  background: #e0e7ff;
+  color: #3b82f6;
+  border-color: #c7d2fe;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .container {
+    height: 450px;
+  }
+  
+  .messages {
+    max-height: calc(100% - 110px);
+    min-height: 180px;
+  }
+  
+  .header {
+    height: 45px;
+    padding: 8px 10px;
+  }
+  
+  .inputContainer {
+    height: 44px;
+    padding: 5px 5px;
+    gap: 5px;
+  }
+  
+  .title {
+    font-size: 1rem;
+  }
+  
+  .input {
+    font-size: 0.95rem;
+    padding: 6px 8px;
+    height: 28px;
+  }
+  
+  .sendButton {
+    font-size: 0.95rem;
+    padding: 0 7px;
+    height: 28px;
+    min-width: 36px;
+    max-width: 54px;
+  }
+} 

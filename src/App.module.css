@@ -1,0 +1,55 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f7f8fa;
+  position: relative;
+}
+.containerShift {
+  margin-left: 280px;
+}
+.sidebarIconWrap {
+  position: fixed;
+  top: 32px;
+  left: 18px;
+  z-index: 300;
+  transition: opacity 0.18s;
+}
+.sidebarIconHidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.pageContent {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.mainFooter {
+  /* position: fixed; */
+  position: static;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background: transparent;
+  color: #b0b8c1;
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 0 0 12px 0;
+  z-index: 10;
+  letter-spacing: 0.01em;
+  transition: left 0.18s, width 0.18s;
+}
+.mainFooterShift {
+  left: 280px;
+  width: calc(100vw - 280px);
+}
+@media (max-width: 600px) {
+  .mainFooter {
+    font-size: 0.85rem;
+    padding-bottom: 8px;
+  }
+} 
