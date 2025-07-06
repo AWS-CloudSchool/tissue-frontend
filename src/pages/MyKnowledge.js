@@ -67,6 +67,7 @@ const MyKnowledge = ({ reports: propReports }) => {
   });
   const pollingRef = useRef();
   const navigate = useNavigate();
+  const [navigatedJobIds, setNavigatedJobIds] = useState([]);
 
   useEffect(() => {
     setReports(propReports || []);
@@ -136,6 +137,29 @@ const MyKnowledge = ({ reports: propReports }) => {
     pollingRef.current = setInterval(pollProgress, 5000);
     return () => clearInterval(pollingRef.current);
   }, [jobs]);
+
+  useEffect(() => {
+    // jobs 중에서 방금 completed로 바뀐 job을 찾음
+    const justCompletedJob = jobs.find(j => {
+      const progress = jobProgress[j.id || j.job_id];
+      return (
+        progress?.status === 'completed' &&
+        !navigatedJobIds.includes(j.id || j.job_id)
+      );
+    });
+
+    if (justCompletedJob) {
+      // 해당 job과 매칭되는 report를 찾음 (youtube_url 또는 job_id 기준)
+      const matchedReport = reports.find(r =>
+        (r.youtube_url && r.youtube_url === (justCompletedJob.input_data?.youtube_url || justCompletedJob.youtube_url)) ||
+        (r.job_id && r.job_id === (justCompletedJob.id || justCompletedJob.job_id))
+      );
+      if (matchedReport) {
+        setNavigatedJobIds(prev => [...prev, justCompletedJob.id || justCompletedJob.job_id]);
+        navigate(`/editor/${matchedReport.id}`, { state: { presignedUrl: matchedReport.url } });
+      }
+    }
+  }, [jobProgress, jobs, reports, navigate, navigatedJobIds]);
 
   const formatDate = (dateString) => {
     try {

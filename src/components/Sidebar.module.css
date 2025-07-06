@@ -227,6 +227,24 @@
   list-style: none;
   margin: 0 0 0 10px !important;
   padding: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+.knowledgeTree::-webkit-scrollbar {
+  width: 6px;
+}
+.knowledgeTree::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+.knowledgeTree::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+.knowledgeTree::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 .treeSection {
   margin-bottom: 8px;
