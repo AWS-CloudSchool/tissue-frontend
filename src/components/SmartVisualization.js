@@ -52,10 +52,15 @@ const SmartVisualization = ({ section }) => {
   // 타입/구조 정규화
   const normalizedSection = useMemo(() => {
     if (!section.data) return section;
-    // type은 무시하고 visualization_type만 사용
     let type = section.data.visualization_type;
-    // 데이터 구조 변환 (config → data)
     let data = section.data.data;
+
+    // data.data 구조 평탄화 (table, chart 등)
+    if (data && data.data && (type === 'table' || type === 'chart')) {
+      data = { ...data, ...data.data };
+      delete data.data;
+    }
+
     if (!data && section.data.config && (type === 'flow' || type === 'network' || type === 'table' || type === 'chart' || type === 'd3')) {
       data = {
         nodes: section.data.config.nodes || [],
@@ -68,7 +73,7 @@ const SmartVisualization = ({ section }) => {
       ...section,
       data: {
         ...section.data,
-        type, // type은 오직 visualization_type 값
+        type,
         data: data || section.data.data,
       }
     };
