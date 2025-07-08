@@ -49,13 +49,36 @@ const SmartVisualization = ({ section }) => {
   const d3Ref = useRef(null);
   const [networkInstance, setNetworkInstance] = useState(null);
 
+  // 타입/구조 정규화
+  const normalizedSection = useMemo(() => {
+    if (!section.data) return section;
+    // type이 없고 visualization_type이 있으면 type에 복사
+    let type = section.data.type || section.data.visualization_type;
+    // 데이터 구조 변환 (config → data)
+    let data = section.data.data;
+    if (!data && section.data.config && (type === 'flow' || type === 'network')) {
+      data = {
+        nodes: section.data.config.nodes || [],
+        edges: section.data.config.edges || []
+      };
+    }
+    return {
+      ...section,
+      data: {
+        ...section.data,
+        type,
+        data: data || section.data.data,
+      }
+    };
+  }, [section]);
+
   useEffect(() => {
-    if (section.data?.type === 'network' && networkRef.current) {
+    if (normalizedSection.data?.type === 'network' && networkRef.current) {
       renderNetwork();
-    } else if (section.data?.type === 'd3' && d3Ref.current) {
+    } else if (normalizedSection.data?.type === 'd3' && d3Ref.current) {
       renderD3Visualization();
-    } else if (section.data?.type === 'diagram') {
-      section.data.type = 'network';
+    } else if (normalizedSection.data?.type === 'diagram') {
+      normalizedSection.data.type = 'network';
       if (networkRef.current) {
         renderNetwork();
       }
@@ -66,7 +89,7 @@ const SmartVisualization = ({ section }) => {
         setNetworkInstance(null);
       }
     };
-  }, [section.data]);
+  }, [normalizedSection.data]);
 
   // vis.js Network 렌더링
   const renderNetwork = () => {
@@ -74,8 +97,8 @@ const SmartVisualization = ({ section }) => {
     try {
       setError(null);
       if (networkInstance) networkInstance.destroy();
-      let networkData = section.data?.data;
-      if (!networkData || section.data?.type === 'diagram') {
+      let networkData = normalizedSection.data?.data;
+      if (!networkData || normalizedSection.data?.type === 'diagram') {
         networkData = {
           nodes: [
             { id: 1, label: '노드 1', color: '#667eea' },
@@ -93,7 +116,7 @@ const SmartVisualization = ({ section }) => {
         nodes: new DataSet(networkData.nodes || []),
         edges: new DataSet(networkData.edges || [])
       };
-      const options = section.data.options || {
+      const options = normalizedSection.data.options || {
         layout: {
           hierarchical: {
             enabled: true,
@@ -129,16 +152,16 @@ const SmartVisualization = ({ section }) => {
 
   // D3.js 시각화 렌더링
   const renderD3Visualization = () => {
-    if (!section.data?.data || !d3Ref.current) return;
+    if (!normalizedSection.data?.data || !d3Ref.current) return;
     try {
       setError(null);
       d3.select(d3Ref.current).selectAll('*').remove();
       const container = d3Ref.current;
-      const data = section.data.data;
-      const config = section.data.config || {};
+      const data = normalizedSection.data.data;
+      const config = normalizedSection.data.config || {};
       const width = config.width || 800;
       const height = config.height || 400;
-      const vizType = section.data.visualization_type;
+      const vizType = normalizedSection.data.visualization_type;
       const svg = d3.select(container)
         .append('svg')
         .attr('width', '100%')
@@ -202,14 +225,14 @@ const SmartVisualization = ({ section }) => {
   };
 
   const renderChart = () => {
-    const { config } = section.data;
+    const { config } = normalizedSection.data;
     if (!config) return null;
     const chartOptions = {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
         legend: { position: 'top' },
-        title: { display: true, text: section.title }
+        title: { display: true, text: normalizedSection.title }
       },
       ...config.options
     };
@@ -226,7 +249,7 @@ const SmartVisualization = ({ section }) => {
   };
 
   const renderTable = () => {
-    const { headers, rows } = section.data;
+    const { headers, rows } = normalizedSection.data;
     if (!headers || !rows) return null;
     // styling 옵션을 무시하고 항상 기본값만 적용
     const defaultStyling = {
@@ -289,10 +312,10 @@ const SmartVisualization = ({ section }) => {
 
   const renderAdvanced = () => (
     <div className={styles.advancedVisualizationPlaceholder}>
-      <h4>{section.data.visualization_type} 시각화</h4>
+      <h4>{normalizedSection.data.visualization_type} 시각화</h4>
       <p>고급 시각화는 추가 구현이 필요합니다.</p>
       <pre style={{ background: '#f8f9fa', padding: '15px', borderRadius: '8px', overflow: 'auto' }}>
-        {JSON.stringify(section.data.data, null, 2)}
+        {JSON.stringify(normalizedSection.data.data, null, 2)}
       </pre>
     </div>
   );
@@ -311,8 +334,8 @@ const SmartVisualization = ({ section }) => {
   };
 
   // title에 purpose label이 포함되어 있으면 중복 렌더링 방지
-  const purposeLabel = getPurposeLabel(section.purpose);
-  const showPurposeLabel = purposeLabel && section.title && !section.title.includes(purposeLabel);
+  const purposeLabel = getPurposeLabel(normalizedSection.purpose);
+  const showPurposeLabel = purposeLabel && normalizedSection.title && !normalizedSection.title.includes(purposeLabel);
 
   return (
     <div className={styles.smartVisualization}>
@@ -320,34 +343,34 @@ const SmartVisualization = ({ section }) => {
         <div className={styles.visualizationHeader}>
           <h3 style={{display:'flex',alignItems:'center',gap: '12px',flexWrap:'wrap'}}>
             <span style={{display:'flex',alignItems:'center',gap:'7px'}}>
-              {getPurposeIcon(section.purpose)}
-              <span>{section.title}</span>
+              {getPurposeIcon(normalizedSection.purpose)}
+              <span>{normalizedSection.title}</span>
             </span>
             {showPurposeLabel && (
-              <span className={`${styles.purposeBadge} ${styles['purpose-' + (section.purpose || '')]}`}>
+              <span className={`${styles.purposeBadge} ${styles['purpose-' + (normalizedSection.purpose || '')]}`}>
                 {purposeLabel}
               </span>
             )}
           </h3>
         </div>
-        {section.data?.type === 'chart' && (
+        {normalizedSection.data?.type === 'chart' && (
           <div className={styles.chartContainer}>{renderChart()}</div>
         )}
-        {(section.data?.type === 'network' || section.data?.type === 'diagram') && (
+        {(normalizedSection.data?.type === 'network' || normalizedSection.data?.type === 'diagram') && (
           <div className={styles.networkContainer}>
             <div ref={networkRef} className={styles.visNetwork} style={{ height: '400px', width: '100%' }} />
             {error && <div className={styles.visualizationError}><p>⚠️ {error}</p></div>}
           </div>
         )}
-        {section.data?.type === 'flow' && (
+        {normalizedSection.data?.type === 'flow' && (
           <div className={styles.flowContainer} style={{ height: '400px', width: '100%' }} ref={flowRef}>
             <ReactFlow
-              nodes={section.data?.data?.nodes || [
+              nodes={normalizedSection.data?.data?.nodes || [
                 { id: '1', type: 'input', position: { x: 0, y: 0 }, data: { label: '시작' } },
                 { id: '2', position: { x: 100, y: 100 }, data: { label: '과정' } },
                 { id: '3', type: 'output', position: { x: 200, y: 200 }, data: { label: '완료' } }
               ]}
-              edges={section.data?.data?.edges || [
+              edges={normalizedSection.data?.data?.edges || [
                 { id: 'e1-2', source: '1', target: '2', label: '연결 1' },
                 { id: 'e2-3', source: '2', target: '3', label: '연결 2' }
               ]}
@@ -362,26 +385,26 @@ const SmartVisualization = ({ section }) => {
             {error && <div className={styles.visualizationError}><p>⚠️ {error}</p></div>}
           </div>
         )}
-        {section.data?.type === 'd3' && (
+        {normalizedSection.data?.type === 'd3' && (
           <div className={styles.d3Container}>
             <div ref={d3Ref} className={styles.d3Visualization} style={{ width: '100%', minHeight: '400px' }} />
             {error && <div className={styles.visualizationError}><p>⚠️ {error}</p></div>}
           </div>
         )}
-        {section.data?.type === 'table' && renderTable()}
-        {section.data?.type === 'advanced' && renderAdvanced()}
-        {!section.data && (
+        {normalizedSection.data?.type === 'table' && renderTable()}
+        {normalizedSection.data?.type === 'advanced' && renderAdvanced()}
+        {!normalizedSection.data && (
           <div className={styles.visualizationError}>
             <p>⚠️ 시각화 데이터가 없습니다</p>
             <pre style={{ background: '#f8f9fa', padding: '10px', borderRadius: '4px', fontSize: '12px' }}>
-              섹션 전체 데이터: {JSON.stringify(section, null, 2)}
+              섹션 전체 데이터: {JSON.stringify(normalizedSection, null, 2)}
             </pre>
           </div>
         )}
-        {section.insight && (
+        {normalizedSection.insight && (
           <div className={styles.visualizationInsight}>
             <h4>💡 핵심 인사이트</h4>
-            <p>{section.insight}</p>
+            <p>{normalizedSection.insight}</p>
           </div>
         )}
       </div>
