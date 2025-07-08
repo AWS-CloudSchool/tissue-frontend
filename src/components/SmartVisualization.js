@@ -52,7 +52,8 @@ const SmartVisualization = ({ section }) => {
   // 타입/구조 정규화
   const normalizedSection = useMemo(() => {
     if (!section.data) return section;
-    let type = section.data.visualization_type;
+    // type을 확실히 할당
+    let type = section.data.visualization_type || section.data.type;
     let data = section.data.data;
 
     // data.data가 여러 번 중첩된 경우도 모두 평탄화
@@ -72,11 +73,12 @@ const SmartVisualization = ({ section }) => {
       data = { ...section.data.config };
     }
 
-    // headers/rows/nodes/edges를 최상위로 끌어올림
+    // headers/rows/nodes/edges/options를 최상위로 끌어올림
     const headers = data?.headers || data?.data?.headers;
     const rows = data?.rows || data?.data?.rows;
     const nodes = data?.nodes || data?.data?.nodes;
     const edges = data?.edges || data?.data?.edges;
+    const options = data?.options || data?.data?.options;
 
     return {
       ...section,
@@ -87,7 +89,8 @@ const SmartVisualization = ({ section }) => {
         headers,
         rows,
         nodes,
-        edges
+        edges,
+        options
       }
     };
   }, [section]);
@@ -123,25 +126,9 @@ const SmartVisualization = ({ section }) => {
     try {
       setError(null);
       if (networkInstance) networkInstance.destroy();
-      let networkData = normalizedSection.data?.data;
-      if (!networkData || normalizedSection.data?.type === 'diagram') {
-        networkData = {
-          nodes: [
-            { id: 1, label: '노드 1', color: '#667eea' },
-            { id: 2, label: '노드 2', color: '#f093fb' },
-            { id: 3, label: '노드 3', color: '#4facfe' }
-          ],
-          edges: [
-            { from: 1, to: 2, label: '연결 1-2' },
-            { from: 2, to: 3, label: '연결 2-3' }
-          ]
-        };
-      }
-      const container = networkRef.current;
-      const data = {
-        nodes: new DataSet(networkData.nodes || []),
-        edges: new DataSet(networkData.edges || [])
-      };
+      // nodes, edges, options를 최상위에서 직접 사용
+      const nodes = normalizedSection.data.nodes;
+      const edges = normalizedSection.data.edges;
       const options = normalizedSection.data.options || {
         layout: {
           hierarchical: {
@@ -168,6 +155,12 @@ const SmartVisualization = ({ section }) => {
           arrows: 'to',
           smooth: true
         }
+      };
+      if (!nodes || !edges) throw new Error('네트워크 데이터가 없습니다');
+      const container = networkRef.current;
+      const data = {
+        nodes: new DataSet(nodes),
+        edges: new DataSet(edges)
       };
       const network = new Network(container, data, options);
       setNetworkInstance(network);
