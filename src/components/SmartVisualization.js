@@ -101,6 +101,12 @@ const SmartVisualization = ({ section }) => {
     };
   }, [section]);
 
+  // normalization 결과 콘솔 출력
+  useEffect(() => {
+    console.log('SmartVisualization section:', section);
+    console.log('SmartVisualization normalizedSection:', normalizedSection);
+  }, [section, normalizedSection]);
+
   useEffect(() => {
     if (normalizedSection.data?.type === 'network' && networkRef.current) {
       renderNetwork();
