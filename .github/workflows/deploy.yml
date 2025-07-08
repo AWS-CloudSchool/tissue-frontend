@@ -23,7 +23,7 @@ jobs:
         run: npm install  # yarn 사용 시 'yarn'으로 변경
 
       - name: Build project
-        run: REACT_APP_BACKEND_URL=${{ secrets.REACT_APP_BACKEND_URL }} npm run build  # 'build' 명령이 ./dist 또는 ./public 생성
+        run: CI=false REACT_APP_BACKEND_URL=${{ secrets.REACT_APP_BACKEND_URL }} npm run build  # 'build' 명령이 ./dist 또는 ./public 생성
 
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@master
