@@ -52,8 +52,10 @@ const SmartVisualization = ({ section }) => {
   // 타입/구조 정규화
   const normalizedSection = useMemo(() => {
     if (!section.data) return section;
-    // type을 확실히 할당
     let type = section.data.visualization_type || section.data.type;
+    // type 값 강제 매핑
+    if (type === 'reactflow') type = 'flow';
+    if (type === 'visnetwork') type = 'network';
     let data = section.data.data;
 
     // data.data가 여러 번 중첩된 경우도 모두 평탄화
@@ -156,7 +158,8 @@ const SmartVisualization = ({ section }) => {
           smooth: true
         }
       };
-      if (!nodes || !edges) throw new Error('네트워크 데이터가 없습니다');
+      // 더미 데이터 완전 제거, 데이터 없으면 에러
+      if (!nodes || !edges || nodes.length === 0 || edges.length === 0) throw new Error('네트워크 데이터가 없습니다');
       const container = networkRef.current;
       const data = {
         nodes: new DataSet(nodes),
