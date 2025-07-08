@@ -55,13 +55,15 @@ const SmartVisualization = ({ section }) => {
     let type = section.data.visualization_type;
     let data = section.data.data;
 
-    // data.data 구조 평탄화 (table, chart 등)
-    if (data && data.data && (type === 'table' || type === 'chart')) {
+    // data.data가 여러 번 중첩된 경우도 모두 평탄화
+    while (data && typeof data.data === 'object' && !Array.isArray(data.data)) {
       data = { ...data, ...data.data };
       delete data.data;
     }
 
-    if (!data && section.data.config && (type === 'flow' || type === 'network' || type === 'table' || type === 'chart' || type === 'd3')) {
+    if (!data && section.data.config && (
+      type === 'flow' || type === 'network' || type === 'table' || type === 'chart' || type === 'd3'
+    )) {
       data = {
         nodes: section.data.config.nodes || [],
         edges: section.data.config.edges || [],
