@@ -61,24 +61,15 @@ const SmartVisualization = ({ section }) => {
       delete data.data;
     }
 
-    // config 기반 데이터도 평탄화
-    if (data && data.config && (
-      type === 'flow' || type === 'network' || type === 'table' || type === 'chart' || type === 'd3'
-    )) {
+    // config가 있으면 type 체크 없이 무조건 평탄화 (중첩도 모두)
+    while (data && data.config) {
       data = { ...data, ...data.config };
       delete data.config;
     }
 
     // config만 있는 경우
-    if (!data && section.data.config && (
-      type === 'flow' || type === 'network' || type === 'table' || type === 'chart' || type === 'd3'
-    )) {
-      data = {
-        nodes: section.data.config.nodes || [],
-        edges: section.data.config.edges || [],
-        headers: section.data.config.headers,
-        rows: section.data.config.rows
-      };
+    if (!data && section.data.config) {
+      data = { ...section.data.config };
     }
 
     // headers/rows/nodes/edges를 최상위로 끌어올림
