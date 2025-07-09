@@ -1,128 +1,157 @@
-.smart-visualization {
+/* 전체 시각화 컨테이너 */
+.smartVisualization {
   margin: 30px 0;
-  padding: 20px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 12px;
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: white;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 }
 
-.visualization-header {
-  margin-bottom: 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.2);
-  padding-bottom: 10px;
+.smartVisualization:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), 0 12px 24px rgba(0, 0, 0, 0.08);
 }
 
-.visualization-header h3 {
-  font-size: 18px;
+/* 헤더 스타일 */
+.visualizationHeader {
+  margin-bottom: 24px;
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+  padding-bottom: 16px;
+}
+
+.visualizationHeader h3 {
+  font-size: 1.4em;
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   color: white;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
-.purpose-badge {
-  font-size: 12px;
-  padding: 3px 8px;
-  border-radius: 12px;
-  margin-left: 10px;
-  background: rgba(255,255,255,0.2);
-  color: white;
-}
-
+/* 목적 배지 */
 .purposeBadge {
   display: inline-block;
-  font-size: 0.97em;
+  font-size: 0.85em;
   font-weight: 600;
-  padding: 4px 13px 4px 13px;
-  border-radius: 12px;
+  padding: 6px 16px;
+  border-radius: 20px;
   margin-left: 0;
-  box-shadow: 0 1.5px 6px 0 rgba(59,130,246,0.10);
-  letter-spacing: 0.02em;
+  box-shadow: 0 4px 12px rgba(59,130,246,0.15);
+  letter-spacing: 0.03em;
   border: none;
   vertical-align: middle;
-  transition: background 0.18s, box-shadow 0.18s;
+  transition: all 0.3s ease;
   line-height: 1.2;
+  backdrop-filter: blur(10px);
 }
 
-.purpose-overview { background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%); color: #fff; }
-.purpose-detail { background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%); color: #fff; }
-.purpose-comparison { background: linear-gradient(90deg, #a21caf 0%, #f472b6 100%); color: #fff; }
-.purpose-process { background: linear-gradient(90deg, #059669 0%, #34d399 100%); color: #fff; }
-.purpose-data { background: linear-gradient(90deg, #ea580c 0%, #fbbf24 100%); color: #fff; }
-.purpose-timeline { background: linear-gradient(90deg, #b91c1c 0%, #fca5a5 100%); color: #fff; }
-.purpose-structure { background: linear-gradient(90deg, #334155 0%, #64748b 100%); color: #fff; }
+.purpose-overview { 
+  background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%); 
+  color: #fff; 
+}
+.purpose-detail { 
+  background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%); 
+  color: #fff; 
+}
+.purpose-comparison { 
+  background: linear-gradient(135deg, #a21caf 0%, #f472b6 100%); 
+  color: #fff; 
+}
+.purpose-process { 
+  background: linear-gradient(135deg, #059669 0%, #34d399 100%); 
+  color: #fff; 
+}
+.purpose-data { 
+  background: linear-gradient(135deg, #ea580c 0%, #fbbf24 100%); 
+  color: #fff; 
+}
+.purpose-timeline { 
+  background: linear-gradient(135deg, #b91c1c 0%, #fca5a5 100%); 
+  color: #fff; 
+}
+.purpose-structure { 
+  background: linear-gradient(135deg, #334155 0%, #64748b 100%); 
+  color: #fff; 
+}
 
 .purposeBadge:hover {
-  filter: brightness(1.08);
-  box-shadow: 0 3px 12px 0 rgba(59,130,246,0.13);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(59,130,246,0.25);
 }
 
-.visualization-header h3 span {
-  margin-right: 0;
-}
-
-.visualization-content {
-  margin: 20px 0;
-  min-height: 200px;
-}
-
-.chart-container {
-  height: 400px;
+/* 차트 컨테이너 */
+.chartContainer {
+  height: 450px;
   width: 100%;
-  background: rgba(255,255,255,0.05);
-  border-radius: 8px;
-  padding: 10px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
 }
 
-/* Network 시각화 스타일 */
-.network-container {
+/* 네트워크 시각화 */
+.networkContainer {
   width: 100%;
-  height: 400px;
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 8px;
+  height: 450px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
   overflow: hidden;
-  background: rgba(255,255,255,0.05);
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
 }
 
-.vis-network {
+.visNetwork {
   width: 100%;
   height: 100%;
+  border-radius: 16px;
 }
 
-/* Flow 시각화 스타일 */
-.flow-container {
+/* 플로우 시각화 */
+.flowContainer {
   width: 100%;
-  height: 400px;
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 8px;
+  height: 450px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
   overflow: hidden;
-  background: rgba(255,255,255,0.05);
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
 }
 
-/* D3 시각화 스타일 */
-.d3-container {
+/* D3 시각화 */
+.d3Container {
   width: 100%;
-  min-height: 400px;
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 8px;
+  min-height: 450px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
   overflow: hidden;
-  background: rgba(255,255,255,0.05);
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
 }
 
-.d3-visualization {
+.d3Visualization {
   width: 100%;
   height: 100%;
+  border-radius: 16px;
 }
 
-.d3-visualization svg {
+.d3Visualization svg {
   width: 100%;
   height: 100%;
+  border-radius: 16px;
 }
 
-.table-container {
+/* 테이블 스타일 (기존 개선된 스타일 유지) */
+.tableContainer {
   width: 100%;
   overflow-x: auto;
   margin: 20px 0;
@@ -130,7 +159,7 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
-.table-wrapper {
+.tableWrapper {
   border-radius: 16px;
   overflow: hidden;
   background: #fff;
@@ -139,7 +168,7 @@
   min-width: 100%;
 }
 
-.data-table {
+.dataTable {
   width: 100%;
   min-width: 100%;
   border-collapse: collapse;
@@ -150,14 +179,14 @@
   overflow: hidden;
 }
 
-.data-table th, .data-table td {
+.dataTable th, .dataTable td {
   border: none;
   position: relative;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
 
-.data-table th {
+.dataTable th {
   font-size: 1.1em;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -171,16 +200,16 @@
   white-space: nowrap;
 }
 
-.data-table th:first-child {
+.dataTable th:first-child {
   border-top-left-radius: 16px;
   width: 25%;
 }
 
-.data-table th:last-child {
+.dataTable th:last-child {
   border-top-right-radius: 16px;
 }
 
-.data-table td {
+.dataTable td {
   font-size: 1.05em;
   padding: 18px 24px;
   color: #374151;
@@ -192,26 +221,26 @@
   overflow-wrap: break-word;
 }
 
-.data-table tr:last-child td:first-child {
+.dataTable tr:last-child td:first-child {
   border-bottom-left-radius: 16px;
 }
 
-.data-table tr:last-child td:last-child {
+.dataTable tr:last-child td:last-child {
   border-bottom-right-radius: 16px;
 }
 
-.data-table tr:nth-child(even) td {
+.dataTable tr:nth-child(even) td {
   background: #fafbfc;
 }
 
-.data-table tr:hover td {
+.dataTable tr:hover td {
   background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
   color: #1f2937;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
 }
 
-.data-table td:first-child {
+.dataTable td:first-child {
   font-weight: 600;
   color: #3b82f6;
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
@@ -219,163 +248,126 @@
   width: 25%;
 }
 
-.data-table tr:hover td:first-child {
+.dataTable tr:hover td:first-child {
   background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
   color: #1d4ed8;
 }
 
-/* 모바일 반응형 */
-@media (max-width: 768px) {
-  .table-container {
-    margin: 15px 0;
-    border-radius: 12px;
-    overflow-x: scroll;
-  }
-  
-  .table-wrapper {
-    border-radius: 12px;
-    min-width: 600px;
-  }
-  
-  .data-table {
-    font-size: 0.95em;
-    min-width: 600px;
-  }
-  
-  .data-table th,
-  .data-table td {
-    padding: 14px 16px;
-    white-space: normal;
-  }
-  
-  .data-table th {
-    font-size: 0.85em;
-    padding: 16px;
-    white-space: normal;
-  }
+/* 고급 시각화 플레이스홀더 */
+.advancedVisualizationPlaceholder {
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  border-radius: 16px;
+  padding: 32px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
 }
 
+.advancedVisualizationPlaceholder h4 {
+  color: white;
+  font-size: 1.3em;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.advancedVisualizationPlaceholder p {
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 24px;
+  font-size: 1.1em;
+}
+
+.advancedVisualizationPlaceholder pre {
+  background: rgba(0,0,0,0.2) !important;
+  color: #e5e7eb !important;
+  padding: 20px !important;
+  border-radius: 12px !important;
+  font-size: 0.9em !important;
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+}
+
+/* 인사이트 섹션 */
 .visualizationInsight {
-  margin-top: 28px;
-  padding: 28px 24px 24px 24px;
-  background: #fff;
-  border-radius: 24px;
-  box-shadow: 0 8px 32px rgba(59,130,246,0.10), 0 1.5px 4px 0 rgba(59,130,246,0.08);
-  position: relative;
-  overflow: hidden;
-  border: 4px solid #3b82f6;
+  margin-top: 24px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(99,102,241,0.1) 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(59,130,246,0.2);
+  backdrop-filter: blur(10px);
 }
 
 .visualizationInsight h4 {
-  margin: 0 0 18px 0;
-  font-size: 20px;
-  font-weight: 700;
-  color: #3b82f6;
+  color: white;
+  font-size: 1.2em;
+  margin: 0 0 12px 0;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .visualizationInsight p {
-  margin: 0;
-  line-height: 1.8;
-  color: #1e293b;
-  font-size: 16px;
-  font-weight: 500;
-  background: rgba(59,130,246,0.04);
-  padding: 18px;
-  border-radius: 10px;
-}
-
-.visualization-benefit {
-  margin-top: 15px;
-  padding: 15px;
-  background: rgba(16, 185, 129, 0.1);
-  border-left: 4px solid #10b981;
-  border-radius: 4px;
-}
-
-.visualization-benefit h4 {
-  margin: 0 0 10px 0;
-  font-size: 16px;
-  color: #34d399;
-}
-
-.visualization-benefit p {
+  color: rgba(255,255,255,0.9);
   margin: 0;
   line-height: 1.6;
-  color: white;
+  font-size: 1.05em;
 }
 
-.visualization-error {
-  padding: 15px;
-  background: rgba(239, 68, 68, 0.1);
-  border-left: 4px solid #ef4444;
-  border-radius: 4px;
-  margin: 20px 0;
+/* 에러 메시지 */
+.visualizationError {
+  margin-top: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(220,38,38,0.1) 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(239,68,68,0.2);
+  backdrop-filter: blur(10px);
 }
 
-.visualization-error p {
-  margin: 0;
+.visualizationError p {
   color: #fca5a5;
+  margin: 0;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.visualizationContent {
-  margin: 20px 0;
-  min-height: 200px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07), 0 1.5px 4px 0 rgba(0,0,0,0.04);
-  padding: 32px 24px;
-  margin: 24px 0;
-  overflow: hidden;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.chart-container,
-.network-container,
-.flow-container,
-.d3-container {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  overflow-x: auto;
-  overflow-y: visible;
-  border-radius: 8px;
-}
-
-.d3-visualization,
-.vis-network {
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
+/* ReactFlow 커스텀 스타일 */
 .react-flow__renderer {
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box;
-  overflow: hidden;
+  border-radius: 16px;
 }
 
+.react-flow__node {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.react-flow__edge-path {
+  stroke-width: 2;
+  stroke: #6366f1;
+}
+
+/* 마크다운 블록 */
 .markdownBlock {
-  color: #1e293b;
-  font-size: 16.5px;
-  line-height: 1.8;
-  font-family: 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', Arial, sans-serif;
-  margin: 18px 0;
-  word-break: break-word;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  color: rgba(255,255,255,0.9);
+  line-height: 1.7;
 }
 
 .markdownBlock h1,
 .markdownBlock h2,
-.markdownBlock h3 {
-  color: #2563eb;
-  font-weight: 700;
-  margin: 1.2em 0 0.7em 0;
-  line-height: 1.3;
+.markdownBlock h3,
+.markdownBlock h4,
+.markdownBlock h5,
+.markdownBlock h6 {
+  color: white;
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
 }
 
 .markdownBlock h1 { font-size: 2em; }
@@ -383,22 +375,82 @@
 .markdownBlock h3 { font-size: 1.2em; }
 
 .markdownBlock ul, .markdownBlock ol {
-  margin: 0.7em 0 0.7em 1.5em;
-  padding-left: 1.2em;
+  padding-left: 24px;
+  margin: 16px 0;
 }
 
 .markdownBlock li {
-  margin-bottom: 0.3em;
-  line-height: 1.7;
+  margin: 8px 0;
+  color: rgba(255,255,255,0.8);
 }
 
 .markdownBlock a {
-  color: #3b82f6;
-  text-decoration: underline;
-  font-weight: 500;
+  color: #60a5fa;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.markdownBlock a:hover {
+  border-bottom-color: #60a5fa;
 }
 
 .markdownBlock strong {
-  color: #0ea5e9;
-  font-weight: 700;
+  color: white;
+  font-weight: 600;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .smartVisualization {
+    margin: 20px 0;
+    padding: 16px;
+    border-radius: 16px;
+  }
+  
+  .visualizationHeader h3 {
+    font-size: 1.2em;
+    gap: 12px;
+  }
+  
+  .chartContainer,
+  .networkContainer,
+  .flowContainer,
+  .d3Container {
+    height: 350px;
+    border-radius: 12px;
+  }
+  
+  .tableContainer {
+    margin: 15px 0;
+    border-radius: 12px;
+    overflow-x: scroll;
+  }
+  
+  .tableWrapper {
+    border-radius: 12px;
+    min-width: 600px;
+  }
+  
+  .dataTable {
+    font-size: 0.95em;
+    min-width: 600px;
+  }
+  
+  .dataTable th,
+  .dataTable td {
+    padding: 14px 16px;
+    white-space: normal;
+  }
+  
+  .dataTable th {
+    font-size: 0.85em;
+    padding: 16px;
+    white-space: normal;
+  }
+  
+  .purposeBadge {
+    font-size: 0.8em;
+    padding: 4px 12px;
+  }
 } 
