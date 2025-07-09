@@ -56,6 +56,7 @@ const SmartVisualization = ({ section }) => {
     // type 값 강제 매핑
     if (type === 'reactflow') type = 'flow';
     if (type === 'visnetwork') type = 'network';
+    if (type === 'visjs') type = 'network';
     let data = section.data.data;
 
     // data.data가 여러 번 중첩된 경우도 모두 평탄화
@@ -75,12 +76,49 @@ const SmartVisualization = ({ section }) => {
       data = { ...section.data.config };
     }
 
+    // data.type도 매핑
+    if (data && data.type === 'visjs') data.type = 'network';
+    if (data && data.type === 'reactflow') data.type = 'flow';
+
     // headers/rows/nodes/edges/options를 최상위로 끌어올림
     const headers = data?.headers || data?.data?.headers;
     const rows = data?.rows || data?.data?.rows;
-    const nodes = data?.nodes || data?.data?.nodes;
-    const edges = data?.edges || data?.data?.edges;
-    const options = data?.options || data?.data?.options;
+    let nodes = data?.nodes || data?.data?.nodes;
+    let edges = data?.edges || data?.data?.edges;
+    let options = data?.options || data?.data?.options || {};
+
+    // config가 있으면 우선적으로 처리 (실제 시각화 데이터가 여기에 있음)
+    if (data && data.config) {
+      const configData = data.config;
+      nodes = configData.nodes || nodes;
+      edges = configData.edges || edges;
+      options = { ...options, ...configData.options };
+    }
+
+    // network_type에 따라 options의 layout 설정
+    if (data && data.network_type === 'hierarchy') {
+      options.layout = {
+        hierarchical: {
+          enabled: true,
+          direction: 'UD',
+          sortMethod: 'directed',
+          levelSeparation: 150
+        }
+      };
+      options.physics = {
+        enabled: false
+      };
+    } else if (data && data.network_type === 'force') {
+      options.physics = {
+        enabled: true,
+        hierarchicalRepulsion: {
+          centralGravity: 0.0,
+          springLength: 100,
+          springConstant: 0.01,
+          nodeDistance: 120
+        }
+      };
+    }
 
     return {
       ...section,
@@ -273,61 +311,33 @@ const SmartVisualization = ({ section }) => {
   const renderTable = () => {
     const { headers, rows } = normalizedSection.data;
     if (!headers || !rows) return null;
-    // styling 옵션을 무시하고 항상 기본값만 적용
-    const defaultStyling = {
-      highlight_column: 0,
-      cell_padding: '16px 18px',
-      header_background: 'linear-gradient(90deg, #3b82f6 0%, #6366f1 100%)',
-      header_text_color: '#fff',
-      row_background_even: '#f8fafc',
-      row_background_odd: '#fff',
-      border_color: '#e5e7eb'
-    };
-    const mergedStyling = defaultStyling;
+    
     return (
       <div className={styles.tableContainer}>
-        <table className={styles.dataTable} style={{borderColor: mergedStyling.border_color}}>
-          <thead>
-            <tr>
-              {headers.map((header, i) => (
-                <th
-                  key={i}
-                  style={{
-                    background: mergedStyling.header_background,
-                    color: mergedStyling.header_text_color,
-                    padding: mergedStyling.cell_padding,
-                    borderColor: mergedStyling.border_color,
-                    ...(mergedStyling.highlight_column === i ? { background: '#dbeafe', color: '#2563eb' } : {})
-                  }}
-                >
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {row.map((cell, cellIndex) => (
-                  <td
-                    key={cellIndex}
-                    style={{
-                      background: cellIndex === mergedStyling.highlight_column
-                        ? '#f3f6fa'
-                        : (rowIndex % 2 === 0 ? mergedStyling.row_background_even : mergedStyling.row_background_odd),
-                      color: '#1e293b',
-                      padding: mergedStyling.cell_padding,
-                      borderColor: mergedStyling.border_color,
-                      fontWeight: cellIndex === mergedStyling.highlight_column ? 700 : undefined,
-                    }}
-                  >
-                    {cell}
-                  </td>
+        <div className={styles.tableWrapper}>
+          <table className={styles.dataTable}>
+            <thead>
+              <tr>
+                {headers.map((header, i) => (
+                  <th key={i}>
+                    {header}
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {row.map((cell, cellIndex) => (
+                    <td key={cellIndex}>
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   };
