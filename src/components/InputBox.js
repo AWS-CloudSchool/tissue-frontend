@@ -9,7 +9,7 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const trendingKeywords = [
   '마이크로서비스 아키텍처',
   'AI 면접 합격 비법',
-  '2024 최신 IT 트렌드',
+  '2025 최신 IT 트렌드',
   '챗GPT 활용법',
   '코딩테스트 꿀팁',
   '유튜브 쇼츠 만들기',
